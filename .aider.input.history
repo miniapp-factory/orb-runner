@@ -418,3 +418,301 @@
 +Button:
 +- "Restart" → startGame()
 +
+
+# 2025-12-01 10:52:05.486845
++Title: Monster Chase Maze
++Description: Escape the colorful maze before the monster catches you! You have limited time and the monster moves toward you every turn.
++
++Category: Game
++Style: Text-based with emoji grid, timer, and chasing monster.
++
++Persistent State:
++- maze (array of arrays)  // 0=wall, 1=path
++- playerX (number)
++- playerY (number)
++- monsterX (number)
++- monsterY (number)
++- exitX (number)
++- exitY (number)
++- moves (number)
++- timeLeft (number)
++- message (string)
++- gameOver (boolean)
++
++On App Load:
++Call startGame()
++
++startGame():
++maze = [
++  [1,1,0,1,1],
++  [0,1,0,1,0],
++  [1,1,1,1,1],
++  [1,0,0,0,1],
++  [1,1,1,0,1]
++]
++playerX = 0
++playerY = 0
++monsterX = 2
++monsterY = 2
++exitX = 4
++exitY = 4
++moves = 0
++timeLeft = 20   // 20 turns before time runs out
++message = "Escape the maze! The monster is chasing you!"
++gameOver = false
++render()
++
++// Build colorful emoji maze
++buildGrid():
++let out = ""
++For y in 0..4:
++  For x in 0..4:
++    If x==playerX AND y==playerY → out += "🧍"
++    Else if x==monsterX AND y==monsterY → out += "👾"
++    Else if x==exitX AND y==exitY → out += "🟩"
++    Else if maze[y][x]==0 → out += "🟥"   // wall
++    Else out += "🟦"                      // path
++  out += "\n"
++return out
++
++// Player move
++move(dir):
++If gameOver → return
++
++newX = playerX
++newY = playerY
++
++If dir=="Up"    → newY -= 1
++If dir=="Down"  → newY += 1
++If dir=="Left"  → newX -= 1
++If dir=="Right" → newX += 1
++
++// Boundary check
++If newX < 0 OR newX > 4 OR newY < 0 OR newY > 4:
++  message = "Boundary!"
++  render()
++  return
++
++// Wall check
++If maze[newY][newX] == 0:
++  message = "You hit a wall!"
++  render()
++  return
++
++// Valid move
++playerX = newX
++playerY = newY
++moves += 1
++timeLeft -= 1
++message = "You moved " + dir + ". Time left: " + timeLeft
++
++// Win condition
++If playerX==exitX AND playerY==exitY:
++  endGame(true)
++  return
++
++// Monster moves
++monsterMove()
++
++// Time check
++If timeLeft <= 0:
++  message = "⏳ Time is up!"
++  endGame(false)
++  return
++
++render()
++
++// Monster logic: move 1 step closer to player
++monsterMove():
++let dx = playerX - monsterX
++let dy = playerY - monsterY
++
++If Math.abs(dx) > Math.abs(dy):
++  monsterX += Math.sign(dx)
++Else:
++  monsterY += Math.sign(dy)
++
++If monsterX==playerX AND monsterY==playerY:
++  endGame(false)
++
++// End game
++endGame(won):
++gameOver = true
++If won:
++  message = "🏆 You escaped! Moves: " + moves
++Else:
++  message = "💀 The monster caught you!"
++render()
++
++// UI
++UI REQUIREMENTS:
++Always show:
++- "Monster Chase Maze"
++- buildGrid()
++- "Player: ("+playerX+","+playerY+")"
++- "Monster: ("+monsterX+","+monsterY+")"
++- "Exit: ("+exitX+","+exitY+")"
++- "Moves: "+moves
++- "Time Left: "+timeLeft
++- message
++
++If NOT gameOver:
++Buttons:
++- Up → move("Up")
++- Down → move("Down")
++- Left → move("Left")
++- Right → move("Right")
++
++If gameOver:
++Button:
++- Restart → startGame()
++
+
+# 2025-12-01 10:52:05.487288
++Title: Monster Chase Maze
++Description: Escape the colorful maze before the monster catches you! You have limited time and the monster moves toward you every turn.
++
++Category: Game
++Style: Text-based with emoji grid, timer, and chasing monster.
++
++Persistent State:
++- maze (array of arrays)  // 0=wall, 1=path
++- playerX (number)
++- playerY (number)
++- monsterX (number)
++- monsterY (number)
++- exitX (number)
++- exitY (number)
++- moves (number)
++- timeLeft (number)
++- message (string)
++- gameOver (boolean)
++
++On App Load:
++Call startGame()
++
++startGame():
++maze = [
++  [1,1,0,1,1],
++  [0,1,0,1,0],
++  [1,1,1,1,1],
++  [1,0,0,0,1],
++  [1,1,1,0,1]
++]
++playerX = 0
++playerY = 0
++monsterX = 2
++monsterY = 2
++exitX = 4
++exitY = 4
++moves = 0
++timeLeft = 20   // 20 turns before time runs out
++message = "Escape the maze! The monster is chasing you!"
++gameOver = false
++render()
++
++// Build colorful emoji maze
++buildGrid():
++let out = ""
++For y in 0..4:
++  For x in 0..4:
++    If x==playerX AND y==playerY → out += "🧍"
++    Else if x==monsterX AND y==monsterY → out += "👾"
++    Else if x==exitX AND y==exitY → out += "🟩"
++    Else if maze[y][x]==0 → out += "🟥"   // wall
++    Else out += "🟦"                      // path
++  out += "\n"
++return out
++
++// Player move
++move(dir):
++If gameOver → return
++
++newX = playerX
++newY = playerY
++
++If dir=="Up"    → newY -= 1
++If dir=="Down"  → newY += 1
++If dir=="Left"  → newX -= 1
++If dir=="Right" → newX += 1
++
++// Boundary check
++If newX < 0 OR newX > 4 OR newY < 0 OR newY > 4:
++  message = "Boundary!"
++  render()
++  return
++
++// Wall check
++If maze[newY][newX] == 0:
++  message = "You hit a wall!"
++  render()
++  return
++
++// Valid move
++playerX = newX
++playerY = newY
++moves += 1
++timeLeft -= 1
++message = "You moved " + dir + ". Time left: " + timeLeft
++
++// Win condition
++If playerX==exitX AND playerY==exitY:
++  endGame(true)
++  return
++
++// Monster moves
++monsterMove()
++
++// Time check
++If timeLeft <= 0:
++  message = "⏳ Time is up!"
++  endGame(false)
++  return
++
++render()
++
++// Monster logic: move 1 step closer to player
++monsterMove():
++let dx = playerX - monsterX
++let dy = playerY - monsterY
++
++If Math.abs(dx) > Math.abs(dy):
++  monsterX += Math.sign(dx)
++Else:
++  monsterY += Math.sign(dy)
++
++If monsterX==playerX AND monsterY==playerY:
++  endGame(false)
++
++// End game
++endGame(won):
++gameOver = true
++If won:
++  message = "🏆 You escaped! Moves: " + moves
++Else:
++  message = "💀 The monster caught you!"
++render()
++
++// UI
++UI REQUIREMENTS:
++Always show:
++- "Monster Chase Maze"
++- buildGrid()
++- "Player: ("+playerX+","+playerY+")"
++- "Monster: ("+monsterX+","+monsterY+")"
++- "Exit: ("+exitX+","+exitY+")"
++- "Moves: "+moves
++- "Time Left: "+timeLeft
++- message
++
++If NOT gameOver:
++Buttons:
++- Up → move("Up")
++- Down → move("Down")
++- Left → move("Left")
++- Right → move("Right")
++
++If gameOver:
++Button:
++- Restart → startGame()
++
