@@ -65,6 +65,25 @@ export default function Home() {
     setMessage(`🏁 Escaped! Total moves: ${moves}`);
   };
 
+  const buildGrid = () => {
+    let output = "";
+    for (let y = 0; y < 5; y++) {
+      for (let x = 0; x < 5; x++) {
+        if (x === playerX && y === playerY) {
+          output += "🧍";
+        } else if (x === exitX && y === exitY) {
+          output += "🟩";
+        } else if (maze[y][x] === 0) {
+          output += "⬛";
+        } else {
+          output += "⬜";
+        }
+      }
+      output += "\n";
+    }
+    return output;
+  };
+
   useEffect(() => {
     startGame();
   }, []);
@@ -76,6 +95,7 @@ export default function Home() {
       <p>Exit: ({exitX},{exitY})</p>
       <p>Moves: {moves}</p>
       <p>{message}</p>
+      <pre className="text-sm font-mono whitespace-pre-wrap">{buildGrid()}</pre>
       {!gameOver ? (
         <div className="flex gap-2">
           <Button onClick={() => move("Up")}>Up</Button>
