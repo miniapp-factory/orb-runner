@@ -198,3 +198,223 @@
 +```
 +
 +Generate an app logo and update the app metadata title and description.
+
+# 2025-12-01 10:35:35.537314
++Title: Path Finder Puzzle
++Description: A simple 5×5 maze where the player moves using buttons. The grid is fully visible using emoji icons.
++
++Category: Game
++Style: Text-based logic puzzle with emoji grid.
++
++Persistent State:
++- maze (array of arrays)    // 0=wall, 1=path
++- playerX (number)
++- playerY (number)
++- exitX (number)
++- exitY (number)
++- moves (number)
++- message (string)
++- gameOver (boolean)
++
++On App Load:
++Call startGame().
++
++startGame():
++maze = [
++  [1,1,0,1,1],
++  [0,1,0,1,0],
++  [1,1,1,1,1],
++  [1,0,0,0,1],
++  [1,1,1,0,1]
++]
++playerX = 0
++playerY = 0
++exitX = 4
++exitY = 4
++moves = 0
++message = "Find your way to the exit!"
++gameOver = false
++render()
++
++// Build visible maze as emoji grid
++buildGrid():
++Let output = ""
++For y in 0..4:
++  For x in 0..4:
++    If x==playerX AND y==playerY → output += "🧍"
++    Else if x==exitX AND y==exitY → output += "🟩"
++    Else if maze[y][x] == 0 → output += "⬛"   // wall
++    Else → output += "⬜"                      // path
++  output += "\n"
++return output
++
++move(dir):
++If gameOver → return
++
++newX = playerX
++newY = playerY
++
++If dir=="Up" → newY -= 1
++If dir=="Down" → newY += 1
++If dir=="Left" → newX -= 1
++If dir=="Right" → newX += 1
++
++// Boundary check
++If newX < 0 OR newX > 4 OR newY < 0 OR newY > 4:
++  message = "You hit the boundary!"
++  render()
++  return
++
++// Wall check
++If maze[newY][newX] == 0:
++  message = "Blocked by a wall!"
++  render()
++  return
++
++// Move is valid
++playerX = newX
++playerY = newY
++moves += 1
++message = "You moved " + dir + ". Moves: " + moves
++
++If playerX==exitX AND playerY==exitY:
++  endGame()
++  return
++
++render()
++
++endGame():
++gameOver = true
++message = "🏁 Escaped! Total moves: " + moves
++render()
++
++UI REQUIREMENTS:
++Always display:
++- "Path Finder Puzzle"
++- buildGrid()   // show the emoji maze grid
++- "Player Position: (" + playerX + "," + playerY + ")"
++- "Exit: (" + exitX + "," + exitY + ")"
++- "Moves: " + moves
++- Message text
++
++If NOT gameOver:
++Buttons:
++- "Up" → move("Up")
++- "Down" → move("Down")
++- "Left" → move("Left")
++- "Right" → move("Right")
++
++If gameOver:
++Button:
++- "Restart" → startGame()
++
+
+# 2025-12-01 10:35:35.537736
++Title: Path Finder Puzzle
++Description: A simple 5×5 maze where the player moves using buttons. The grid is fully visible using emoji icons.
++
++Category: Game
++Style: Text-based logic puzzle with emoji grid.
++
++Persistent State:
++- maze (array of arrays)    // 0=wall, 1=path
++- playerX (number)
++- playerY (number)
++- exitX (number)
++- exitY (number)
++- moves (number)
++- message (string)
++- gameOver (boolean)
++
++On App Load:
++Call startGame().
++
++startGame():
++maze = [
++  [1,1,0,1,1],
++  [0,1,0,1,0],
++  [1,1,1,1,1],
++  [1,0,0,0,1],
++  [1,1,1,0,1]
++]
++playerX = 0
++playerY = 0
++exitX = 4
++exitY = 4
++moves = 0
++message = "Find your way to the exit!"
++gameOver = false
++render()
++
++// Build visible maze as emoji grid
++buildGrid():
++Let output = ""
++For y in 0..4:
++  For x in 0..4:
++    If x==playerX AND y==playerY → output += "🧍"
++    Else if x==exitX AND y==exitY → output += "🟩"
++    Else if maze[y][x] == 0 → output += "⬛"   // wall
++    Else → output += "⬜"                      // path
++  output += "\n"
++return output
++
++move(dir):
++If gameOver → return
++
++newX = playerX
++newY = playerY
++
++If dir=="Up" → newY -= 1
++If dir=="Down" → newY += 1
++If dir=="Left" → newX -= 1
++If dir=="Right" → newX += 1
++
++// Boundary check
++If newX < 0 OR newX > 4 OR newY < 0 OR newY > 4:
++  message = "You hit the boundary!"
++  render()
++  return
++
++// Wall check
++If maze[newY][newX] == 0:
++  message = "Blocked by a wall!"
++  render()
++  return
++
++// Move is valid
++playerX = newX
++playerY = newY
++moves += 1
++message = "You moved " + dir + ". Moves: " + moves
++
++If playerX==exitX AND playerY==exitY:
++  endGame()
++  return
++
++render()
++
++endGame():
++gameOver = true
++message = "🏁 Escaped! Total moves: " + moves
++render()
++
++UI REQUIREMENTS:
++Always display:
++- "Path Finder Puzzle"
++- buildGrid()   // show the emoji maze grid
++- "Player Position: (" + playerX + "," + playerY + ")"
++- "Exit: (" + exitX + "," + exitY + ")"
++- "Moves: " + moves
++- Message text
++
++If NOT gameOver:
++Buttons:
++- "Up" → move("Up")
++- "Down" → move("Down")
++- "Left" → move("Left")
++- "Right" → move("Right")
++
++If gameOver:
++Button:
++- "Restart" → startGame()
++
