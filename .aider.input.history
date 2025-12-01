@@ -1,0 +1,200 @@
+
+# 2025-12-01 10:21:46.223359
++Code the following app
++```
++Title: Path Finder Puzzle
++Description: A simple text-based maze. Choose directions to escape the labyrinth in as few moves as possible.
++
++Category: Game
++Style: Text-based logic puzzle.
++
++Persistent State:
++- maze (array of arrays)  // 0 = wall, 1 = path
++- playerX (number)
++- playerY (number)
++- exitX (number)
++- exitY (number)
++- moves (number)
++- message (string)
++- gameOver (boolean)
++
++On App Load:
++Call startGame().
++
++startGame():
++- Define a fixed 5x5 maze like:
++  maze = [
++    [1,1,0,1,1],
++    [0,1,0,1,0],
++    [1,1,1,1,1],
++    [1,0,0,0,1],
++    [1,1,1,0,1]
++  ]
++- playerX = 0
++- playerY = 0
++- exitX = 4
++- exitY = 4
++- moves = 0
++- gameOver = false
++- message = "Find your way to the exit!"
++- render()
++
++move(dir):
++If gameOver → return.
++newX = playerX
++newY = playerY
++If dir == "Up" → newY -= 1
++If dir == "Down" → newY += 1
++If dir == "Left" → newX -= 1
++If dir == "Right" → newX += 1
++
++// Bounds check
++If newX < 0 OR newY < 0 OR newX > 4 OR newY > 4:
++    message = "You hit the boundary!"
++    render()
++    return
++
++// Wall check
++If maze[newY][newX] == 0:
++    message = "Blocked by a wall!"
++    render()
++    return
++
++// Valid move
++playerX = newX
++playerY = newY
++moves += 1
++message = "You moved " + dir + ". Moves: " + moves
++
++If playerX == exitX AND playerY == exitY:
++    endGame()
++
++render()
++
++endGame():
++gameOver = true
++message = "🏁 Escaped! Total moves: " + moves
++render()
++
++UI REQUIREMENTS:
++Always display:
++- "Path Finder Puzzle"
++- "Player Position: (" + playerX + "," + playerY + ")"
++- "Exit: (" + exitX + "," + exitY + ")"
++- "Moves: " + moves
++- Message text
++
++If NOT gameOver:
++Buttons:
++- "Up" → move("Up")
++- "Down" → move("Down")
++- "Left" → move("Left")
++- "Right" → move("Right")
++
++If gameOver:
++Button:
++- "Restart" → startGame()
++
++```
++
++Generate an app logo and update the app metadata title and description.
+
+# 2025-12-01 10:21:46.223779
++Code the following app
++```
++Title: Path Finder Puzzle
++Description: A simple text-based maze. Choose directions to escape the labyrinth in as few moves as possible.
++
++Category: Game
++Style: Text-based logic puzzle.
++
++Persistent State:
++- maze (array of arrays)  // 0 = wall, 1 = path
++- playerX (number)
++- playerY (number)
++- exitX (number)
++- exitY (number)
++- moves (number)
++- message (string)
++- gameOver (boolean)
++
++On App Load:
++Call startGame().
++
++startGame():
++- Define a fixed 5x5 maze like:
++  maze = [
++    [1,1,0,1,1],
++    [0,1,0,1,0],
++    [1,1,1,1,1],
++    [1,0,0,0,1],
++    [1,1,1,0,1]
++  ]
++- playerX = 0
++- playerY = 0
++- exitX = 4
++- exitY = 4
++- moves = 0
++- gameOver = false
++- message = "Find your way to the exit!"
++- render()
++
++move(dir):
++If gameOver → return.
++newX = playerX
++newY = playerY
++If dir == "Up" → newY -= 1
++If dir == "Down" → newY += 1
++If dir == "Left" → newX -= 1
++If dir == "Right" → newX += 1
++
++// Bounds check
++If newX < 0 OR newY < 0 OR newX > 4 OR newY > 4:
++    message = "You hit the boundary!"
++    render()
++    return
++
++// Wall check
++If maze[newY][newX] == 0:
++    message = "Blocked by a wall!"
++    render()
++    return
++
++// Valid move
++playerX = newX
++playerY = newY
++moves += 1
++message = "You moved " + dir + ". Moves: " + moves
++
++If playerX == exitX AND playerY == exitY:
++    endGame()
++
++render()
++
++endGame():
++gameOver = true
++message = "🏁 Escaped! Total moves: " + moves
++render()
++
++UI REQUIREMENTS:
++Always display:
++- "Path Finder Puzzle"
++- "Player Position: (" + playerX + "," + playerY + ")"
++- "Exit: (" + exitX + "," + exitY + ")"
++- "Moves: " + moves
++- Message text
++
++If NOT gameOver:
++Buttons:
++- "Up" → move("Up")
++- "Down" → move("Down")
++- "Left" → move("Left")
++- "Right" → move("Right")
++
++If gameOver:
++Button:
++- "Restart" → startGame()
++
++```
++
++Generate an app logo and update the app metadata title and description.
