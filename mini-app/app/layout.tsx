@@ -5,6 +5,7 @@ import { MiniAppProvider } from "@/components/context/miniapp-provider";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { description, title } from "@/lib/metadata";
+import { generateMetadata } from "@/lib/farcaster-embed";
 
 const inter = localFont({
   src: "./InterVariable.ttf",

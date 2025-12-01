@@ -1,11 +1,9 @@
 "use client";
 
 import { description, title } from "@/lib/metadata";
-import { generateMetadata } from "@/lib/farcaster-embed";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
-export { generateMetadata };
 
 export default function Home() {
   const [maze, setMaze] = useState<number[][]>([]);
