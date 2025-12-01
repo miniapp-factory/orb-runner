@@ -1,3 +1,3 @@
-export const title = "Path Finder Puzzle";
-export const description = "A simple text-based maze. Choose directions to escape the labyrinth in as few moves as possible.";
+export const title = "Monster Chase Maze";
+export const description = "Escape the colorful maze before the monster catches you! You have limited time and the monster moves toward you every turn.";
 export const url = process.env.NEXT_PUBLIC_URL;

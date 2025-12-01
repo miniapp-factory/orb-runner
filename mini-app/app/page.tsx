@@ -12,6 +12,9 @@ export default function Home() {
   const [exitX, setExitX] = useState(0);
   const [exitY, setExitY] = useState(0);
   const [moves, setMoves] = useState(0);
+  const [monsterX, setMonsterX] = useState(0);
+  const [monsterY, setMonsterY] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(0);
   const [message, setMessage] = useState("");
   const [gameOver, setGameOver] = useState(false);
 
@@ -29,8 +32,11 @@ export default function Home() {
     setExitX(4);
     setExitY(4);
     setMoves(0);
+    setMonsterX(2);
+    setMonsterY(2);
+    setTimeLeft(20);
     setGameOver(false);
-    setMessage("Find your way to the exit!");
+    setMessage("Escape the maze! The monster is chasing you!");
   };
 
   const move = (dir: string) => {
@@ -43,46 +49,64 @@ export default function Home() {
     if (dir === "Right") newX += 1;
 
     if (newX < 0 || newY < 0 || newX > 4 || newY > 4) {
-      setMessage("You hit the boundary!");
+      setMessage("Boundary!");
       return;
     }
     if (maze[newY][newX] === 0) {
-      setMessage("Blocked by a wall!");
+      setMessage("You hit a wall!");
       return;
     }
+
     const newMoves = moves + 1;
     setPlayerX(newX);
     setPlayerY(newY);
     setMoves(newMoves);
-    setMessage(`You moved ${dir}. Moves: ${newMoves}`);
+    setTimeLeft(timeLeft - 1);
+    setMessage(`You moved ${dir}. Time left: ${timeLeft - 1}`);
+
     if (newX === exitX && newY === exitY) {
-      endGame();
+      endGame(true);
+      return;
+    }
+
+    monsterMove();
+
+    if (timeLeft - 1 <= 0) {
+      setMessage("⏳ Time is up!");
+      endGame(false);
+      return;
     }
   };
 
-  const endGame = () => {
+  const endGame = (won: boolean) => {
     setGameOver(true);
-    setMessage(`🏁 Escaped! Total moves: ${moves}`);
+    if (won) {
+      setMessage(`🏆 You escaped! Moves: ${moves}`);
+    } else {
+      setMessage(`💀 The monster caught you!`);
+    }
   };
 
   const buildGrid = () => {
     if (!maze || maze.length === 0) return "";
-    let output = "";
+    let out = "";
     for (let y = 0; y < 5; y++) {
       for (let x = 0; x < 5; x++) {
         if (x === playerX && y === playerY) {
-          output += "🧍";
+          out += "🧍";
+        } else if (x === monsterX && y === monsterY) {
+          out += "👾";
         } else if (x === exitX && y === exitY) {
-          output += "🟩";
+          out += "🟩";
         } else if (maze[y][x] === 0) {
-          output += "⬛";
+          out += "🟥";
         } else {
-          output += "⬜";
+          out += "🟦";
         }
       }
-      output += "\n";
+      out += "\n";
     }
-    return output;
+    return out;
   };
 
   useEffect(() => {
@@ -93,8 +117,10 @@ export default function Home() {
     <main className="flex flex-col gap-3 place-items-center place-content-center px-4 grow">
       <h1 className="text-2xl font-bold">Path Finder Puzzle</h1>
       <p>Player Position: ({playerX},{playerY})</p>
+      <p>Monster Position: ({monsterX},{monsterY})</p>
       <p>Exit: ({exitX},{exitY})</p>
       <p>Moves: {moves}</p>
+      <p>Time Left: {timeLeft}</p>
       <p>{message}</p>
       <pre className="text-sm font-mono whitespace-pre-wrap">{buildGrid()}</pre>
       {!gameOver ? (
