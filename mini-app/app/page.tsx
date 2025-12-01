@@ -115,7 +115,7 @@ export default function Home() {
 
   return (
     <main className="flex flex-col gap-3 place-items-center place-content-center px-4 grow">
-      <h1 className="text-2xl font-bold">Path Finder Puzzle</h1>
+      <h1 className="text-2xl font-bold">{title}</h1>
       <p>Player Position: ({playerX},{playerY})</p>
       <p>Monster Position: ({monsterX},{monsterY})</p>
       <p>Exit: ({exitX},{exitY})</p>
