@@ -87,6 +87,19 @@ export default function Home() {
     }
   };
 
+  const monsterMove = () => {
+    const dx = playerX - monsterX;
+    const dy = playerY - monsterY;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      setMonsterX(monsterX + Math.sign(dx));
+    } else {
+      setMonsterY(monsterY + Math.sign(dy));
+    }
+    if (monsterX === playerX && monsterY === playerY) {
+      endGame(false);
+    }
+  };
+
   const buildGrid = () => {
     if (!maze || maze.length === 0) return "";
     let out = "";
