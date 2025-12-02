@@ -1,3 +1,3 @@
-export const title = "Monster Chase Neon Maze";
-export const description = "Navigate a neon maze while a monster hunts you. Smooth movement simulation, intelligent monster, and guaranteed solvable maze.";
+export const title = "Monster Chase Maze — Emoji Grid (Fixed)";
+export const description = "10×10 neon maze. Player 🧍 and Monster 👹 shown as emoji, exit 🟧. Big visible grid, restart always works. Monster chase logic fixed.";
 export const url = process.env.NEXT_PUBLIC_URL;
