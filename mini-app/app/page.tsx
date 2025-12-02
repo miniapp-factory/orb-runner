@@ -19,24 +19,42 @@ export default function Home() {
   const [gameOver, setGameOver] = useState(false);
 
   const startGame = () => {
-    const newMaze = [
-      [1,1,1,1,1,1,1],
-      [1,0,0,0,0,0,1],
-      [1,0,1,1,1,0,1],
-      [1,0,1,0,1,0,1],
-      [1,0,1,1,1,0,1],
-      [1,0,0,0,0,0,1],
-      [1,1,1,1,1,1,1]
-    ];
+    // Generate a random 10x10 maze with outer walls
+    const rows = 10;
+    const cols = 10;
+    const newMaze: number[][] = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => (Math.random() < 0.3 ? 0 : 1))
+    );
+    // Ensure outer borders are walls
+    for (let i = 0; i < cols; i++) {
+      newMaze[0][i] = 0;
+      newMaze[rows - 1][i] = 0;
+    }
+    for (let i = 0; i < rows; i++) {
+      newMaze[i][0] = 0;
+      newMaze[i][cols - 1] = 0;
+    }
+    // Place player at top-left corner
+    setPlayerX(1);
+    setPlayerY(1);
+    newMaze[1][1] = 1;
+    // Place monster at bottom-right corner
+    setMonsterX(cols - 2);
+    setMonsterY(rows - 2);
+    newMaze[rows - 2][cols - 2] = 1;
+    // Random exit not on walls or player/monster
+    let exitX = 1;
+    let exitY = 1;
+    do {
+      exitX = Math.floor(Math.random() * (cols - 2)) + 1;
+      exitY = Math.floor(Math.random() * (rows - 2)) + 1;
+    } while (newMaze[exitY][exitX] === 0 || (exitX === 1 && exitY === 1) || (exitX === cols - 2 && exitY === rows - 2));
+    setExitX(exitX);
+    setExitY(exitY);
+    newMaze[exitY][exitX] = 1;
     setMaze(newMaze);
-    setPlayerX(0);
-    setPlayerY(0);
-    setExitX(5);
-    setExitY(5);
     setMoves(0);
-    setMonsterX(6);
-    setMonsterY(6);
-    setTimeLeft(30);
+    setTimeLeft(60);
     setGameOver(false);
     setMessage("Escape the maze! The monster is chasing you!");
   };
@@ -92,11 +110,24 @@ export default function Home() {
   const monsterMove = () => {
     const dx = playerX - monsterX;
     const dy = playerY - monsterY;
-    if (Math.abs(dx) > Math.abs(dy)) {
-      setMonsterX(monsterX + Math.sign(dx));
-    } else {
-      setMonsterY(monsterY + Math.sign(dy));
+    let moved = false;
+    // Try horizontal move if path is clear
+    if (dx !== 0) {
+      const nx = monsterX + Math.sign(dx);
+      if (maze[monsterY][nx] === 1) {
+        setMonsterX(nx);
+        moved = true;
+      }
     }
+    // If not moved, try vertical
+    if (!moved && dy !== 0) {
+      const ny = monsterY + Math.sign(dy);
+      if (maze[ny][monsterX] === 1) {
+        setMonsterY(ny);
+        moved = true;
+      }
+    }
+    // If still blocked, stay in place
     if (monsterX === playerX && monsterY === playerY) {
       endGame(false);
     }
