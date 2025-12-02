@@ -900,3 +900,307 @@
 +- rows = 10
 +- cols = 
 +
+
+# 2025-12-02 18:41:29.122758
++Title: Monster Chase Maze 10x10 Neon
++Description: Escape the maze while a monster chases you. Every run generates a new valid maze with a guaranteed path to the exit.
++Category: Game
++
++Persistent State:
++- maze (array)
++- rows (number)
++- cols (number)
++- playerX (number)
++- playerY (number)
++- monsterX (number)
++- monsterY (number)
++- exitX (number)
++- exitY (number)
++- moves (number)
++- timeLeft (number)
++- message (string)
++- gameOver (boolean)
++
++On App Load:
++Call initGame().
++
++initGame():
++rows = 10
++cols = 10
++gameOver = false
++moves = 0
++timeLeft = 30
++message = "Escape the maze!"
++
++// Generate maze using guaranteed-carve algorithm
++maze = []
++for y from 0..rows-1:
++    row = []
++    for x from 0..cols-1:
++        row.push(1)   // start as wall
++    maze.push(row)
++
++// Carve path from (0,0) to (9,9)
++px = 0
++py = 0
++maze[py][px] = 0
++while px != cols-1 or py != rows-1:
++    if random() < 0.5:
++        if px < cols-1:
++            px += 1
++    else:
++        if py < rows-1:
++            py += 1
++    maze[py][px] = 0
++
++// Add random extra openings
++for i in 0..30:
++    rx = floor(random()*cols)
++    ry = floor(random()*rows)
++    maze[ry][rx] = 0
++
++// Set positions
++playerX = 0
++playerY = 0
++monsterX = cols-1
++monsterY = rows-1
++exitX = cols-1
++exitY = rows-1
++
++render()
++
++move(dir):
++If gameOver → return
++
++nx = playerX
++ny = playerY
++
++If dir == "Up" → ny -= 1
++If dir == "Down" → ny += 1
++If dir == "Left" → nx -= 1
++If dir == "Right" → nx += 1
++
++// bounds
++If nx < 0 or ny < 0 or nx >= cols or ny >= rows:
++    return
++
++// wall check
++If maze[ny][nx] == 1:
++    return
++
++// Move player
++playerX = nx
++playerY = ny
++moves += 1
++timeLeft -= 1
++
++// Win
++If playerX == exitX AND playerY == exitY:
++    endGame(true)
++    return
++
++// Monster movement (simple chase)
++dx = playerX - monsterX
++dy = playerY - monsterY
++
++If abs(dx) > abs(dy):
++    monsterX += sign(dx)
++else:
++    monsterY += sign(dy)
++
++// Monster avoids walls
++If maze[monsterY][monsterX] == 1:
++    monsterX = monsterX
++    monsterY = monsterY
++
++// Lose
++If monsterX == playerX AND monsterY == playerY:
++    endGame(false)
++    return
++
++If timeLeft <= 0:
++    endGame(false)
++    return
++
++render()
++
++endGame(win):
++gameOver = true
++If win → message = "🏆 You escaped!"
++Else → message = "💀 The monster caught you!"
++render()
++
++UI RENDERING:
++Show only:
++- "Monster Chase Maze"
++- message
++- big grid (10x10)
++
++Grid rendering rules:
++- wall → "🟥"
++- path → "🟦"
++- player → "🟩"
++- monster → "🟪"
++- exit → "🟧"
++
++Buttons (if NOT gameOver):
++Up → move("Up")
++Down → move("Down")
++Left → move("Left")
++Right → move("Right")
++
++If gameOver:
++Button → "Restart" → initGame()
++
+
+# 2025-12-02 18:41:29.123443
++Title: Monster Chase Maze 10x10 Neon
++Description: Escape the maze while a monster chases you. Every run generates a new valid maze with a guaranteed path to the exit.
++Category: Game
++
++Persistent State:
++- maze (array)
++- rows (number)
++- cols (number)
++- playerX (number)
++- playerY (number)
++- monsterX (number)
++- monsterY (number)
++- exitX (number)
++- exitY (number)
++- moves (number)
++- timeLeft (number)
++- message (string)
++- gameOver (boolean)
++
++On App Load:
++Call initGame().
++
++initGame():
++rows = 10
++cols = 10
++gameOver = false
++moves = 0
++timeLeft = 30
++message = "Escape the maze!"
++
++// Generate maze using guaranteed-carve algorithm
++maze = []
++for y from 0..rows-1:
++    row = []
++    for x from 0..cols-1:
++        row.push(1)   // start as wall
++    maze.push(row)
++
++// Carve path from (0,0) to (9,9)
++px = 0
++py = 0
++maze[py][px] = 0
++while px != cols-1 or py != rows-1:
++    if random() < 0.5:
++        if px < cols-1:
++            px += 1
++    else:
++        if py < rows-1:
++            py += 1
++    maze[py][px] = 0
++
++// Add random extra openings
++for i in 0..30:
++    rx = floor(random()*cols)
++    ry = floor(random()*rows)
++    maze[ry][rx] = 0
++
++// Set positions
++playerX = 0
++playerY = 0
++monsterX = cols-1
++monsterY = rows-1
++exitX = cols-1
++exitY = rows-1
++
++render()
++
++move(dir):
++If gameOver → return
++
++nx = playerX
++ny = playerY
++
++If dir == "Up" → ny -= 1
++If dir == "Down" → ny += 1
++If dir == "Left" → nx -= 1
++If dir == "Right" → nx += 1
++
++// bounds
++If nx < 0 or ny < 0 or nx >= cols or ny >= rows:
++    return
++
++// wall check
++If maze[ny][nx] == 1:
++    return
++
++// Move player
++playerX = nx
++playerY = ny
++moves += 1
++timeLeft -= 1
++
++// Win
++If playerX == exitX AND playerY == exitY:
++    endGame(true)
++    return
++
++// Monster movement (simple chase)
++dx = playerX - monsterX
++dy = playerY - monsterY
++
++If abs(dx) > abs(dy):
++    monsterX += sign(dx)
++else:
++    monsterY += sign(dy)
++
++// Monster avoids walls
++If maze[monsterY][monsterX] == 1:
++    monsterX = monsterX
++    monsterY = monsterY
++
++// Lose
++If monsterX == playerX AND monsterY == playerY:
++    endGame(false)
++    return
++
++If timeLeft <= 0:
++    endGame(false)
++    return
++
++render()
++
++endGame(win):
++gameOver = true
++If win → message = "🏆 You escaped!"
++Else → message = "💀 The monster caught you!"
++render()
++
++UI RENDERING:
++Show only:
++- "Monster Chase Maze"
++- message
++- big grid (10x10)
++
++Grid rendering rules:
++- wall → "🟥"
++- path → "🟦"
++- player → "🟩"
++- monster → "🟪"
++- exit → "🟧"
++
++Buttons (if NOT gameOver):
++Up → move("Up")
++Down → move("Down")
++Left → move("Left")
++Right → move("Right")
++
++If gameOver:
++Button → "Restart" → initGame()
++
