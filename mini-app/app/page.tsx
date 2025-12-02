@@ -20,21 +20,23 @@ export default function Home() {
 
   const startGame = () => {
     const newMaze = [
-      [1,1,0,1,1],
-      [0,1,0,1,0],
-      [1,1,1,1,1],
-      [1,0,0,0,1],
-      [1,1,1,0,1]
+      [1,1,1,1,1,1,1],
+      [1,0,0,0,0,0,1],
+      [1,0,1,1,1,0,1],
+      [1,0,1,0,1,0,1],
+      [1,0,1,1,1,0,1],
+      [1,0,0,0,0,0,1],
+      [1,1,1,1,1,1,1]
     ];
     setMaze(newMaze);
     setPlayerX(0);
     setPlayerY(0);
-    setExitX(4);
-    setExitY(4);
+    setExitX(5);
+    setExitY(5);
     setMoves(0);
-    setMonsterX(2);
-    setMonsterY(2);
-    setTimeLeft(20);
+    setMonsterX(6);
+    setMonsterY(6);
+    setTimeLeft(30);
     setGameOver(false);
     setMessage("Escape the maze! The monster is chasing you!");
   };
@@ -48,7 +50,7 @@ export default function Home() {
     if (dir === "Left") newX -= 1;
     if (dir === "Right") newX += 1;
 
-    if (newX < 0 || newY < 0 || newX > 4 || newY > 4) {
+    if (newX < 0 || newY < 0 || newX > 6 || newY > 6) {
       setMessage("Boundary!");
       return;
     }
@@ -81,9 +83,9 @@ export default function Home() {
   const endGame = (won: boolean) => {
     setGameOver(true);
     if (won) {
-      setMessage(`🏆 You escaped! Moves: ${moves}`);
+      setMessage(`🏆 Escaped! Moves: ${moves}`);
     } else {
-      setMessage(`💀 The monster caught you!`);
+      setMessage(`💀 Caught by monster!`);
     }
   };
 
@@ -103,8 +105,8 @@ export default function Home() {
   const buildGrid = () => {
     if (!maze || maze.length === 0) return "";
     let out = "";
-    for (let y = 0; y < 5; y++) {
-      for (let x = 0; x < 5; x++) {
+    for (let y = 0; y < 7; y++) {
+      for (let x = 0; x < 7; x++) {
         if (x === playerX && y === playerY) {
           out += "🧍";
         } else if (x === monsterX && y === monsterY) {
@@ -136,16 +138,13 @@ export default function Home() {
       <p>Time Left: {timeLeft}</p>
       <p>{message}</p>
       <pre className="text-sm font-mono whitespace-pre-wrap">{buildGrid()}</pre>
-      {!gameOver ? (
-        <div className="flex gap-2">
-          <Button onClick={() => move("Up")}>Up</Button>
-          <Button onClick={() => move("Down")}>Down</Button>
-          <Button onClick={() => move("Left")}>Left</Button>
-          <Button onClick={() => move("Right")}>Right</Button>
-        </div>
-      ) : (
+      <div className="flex gap-2">
+        <Button onClick={() => move("Up")}>Up</Button>
+        <Button onClick={() => move("Down")}>Down</Button>
+        <Button onClick={() => move("Left")}>Left</Button>
+        <Button onClick={() => move("Right")}>Right</Button>
         <Button onClick={startGame}>Restart</Button>
-      )}
+      </div>
     </main>
   );
 }
