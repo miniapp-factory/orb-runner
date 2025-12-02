@@ -18,45 +18,43 @@ export default function Home() {
   const [message, setMessage] = useState("");
   const [gameOver, setGameOver] = useState(false);
 
-  const startGame = () => {
-    // Generate a random 10x10 maze with outer walls
+  const initGame = () => {
+    // Guaranteed-carve algorithm for a 10x10 maze
     const rows = 10;
     const cols = 10;
     const newMaze: number[][] = Array.from({ length: rows }, () =>
-      Array.from({ length: cols }, () => (Math.random() < 0.3 ? 0 : 1))
+      Array.from({ length: cols }, () => 1)
     );
-    // Ensure outer borders are walls
-    for (let i = 0; i < cols; i++) {
-      newMaze[0][i] = 0;
-      newMaze[rows - 1][i] = 0;
+    // Carve path from (0,0) to (9,9)
+    let px = 0;
+    let py = 0;
+    newMaze[py][px] = 0;
+    while (px !== cols - 1 || py !== rows - 1) {
+      if (Math.random() < 0.5) {
+        if (px < cols - 1) px += 1;
+      } else {
+        if (py < rows - 1) py += 1;
+      }
+      newMaze[py][px] = 0;
     }
-    for (let i = 0; i < rows; i++) {
-      newMaze[i][0] = 0;
-      newMaze[i][cols - 1] = 0;
+    // Add random extra openings
+    for (let i = 0; i < 30; i++) {
+      const rx = Math.floor(Math.random() * cols);
+      const ry = Math.floor(Math.random() * rows);
+      newMaze[ry][rx] = 0;
     }
-    // Place player at top-left corner
-    setPlayerX(1);
-    setPlayerY(1);
-    newMaze[1][1] = 1;
-    // Place monster at bottom-right corner
-    setMonsterX(cols - 2);
-    setMonsterY(rows - 2);
-    newMaze[rows - 2][cols - 2] = 1;
-    // Random exit not on walls or player/monster
-    let exitX = 1;
-    let exitY = 1;
-    do {
-      exitX = Math.floor(Math.random() * (cols - 2)) + 1;
-      exitY = Math.floor(Math.random() * (rows - 2)) + 1;
-    } while (newMaze[exitY][exitX] === 0 || (exitX === 1 && exitY === 1) || (exitX === cols - 2 && exitY === rows - 2));
-    setExitX(exitX);
-    setExitY(exitY);
-    newMaze[exitY][exitX] = 1;
+    // Set positions
+    setPlayerX(0);
+    setPlayerY(0);
+    setMonsterX(cols - 1);
+    setMonsterY(rows - 1);
+    setExitX(cols - 1);
+    setExitY(rows - 1);
     setMaze(newMaze);
     setMoves(0);
-    setTimeLeft(60);
+    setTimeLeft(30);
     setGameOver(false);
-    setMessage("Escape the maze! The monster is chasing you!");
+    setMessage("Escape the maze!");
   };
 
   const move = (dir: string) => {
@@ -110,24 +108,14 @@ export default function Home() {
   const monsterMove = () => {
     const dx = playerX - monsterX;
     const dy = playerY - monsterY;
-    let moved = false;
-    // Try horizontal move if path is clear
-    if (dx !== 0) {
-      const nx = monsterX + Math.sign(dx);
-      if (maze[monsterY][nx] === 1) {
-        setMonsterX(nx);
-        moved = true;
-      }
+    if (Math.abs(dx) > Math.abs(dy)) {
+      setMonsterX(monsterX + Math.sign(dx));
+    } else {
+      setMonsterY(monsterY + Math.sign(dy));
     }
-    // If not moved, try vertical
-    if (!moved && dy !== 0) {
-      const ny = monsterY + Math.sign(dy);
-      if (maze[ny][monsterX] === 1) {
-        setMonsterY(ny);
-        moved = true;
-      }
+    if (maze[monsterY][monsterX] === 0) {
+      // stay in place if next cell is a wall
     }
-    // If still blocked, stay in place
     if (monsterX === playerX && monsterY === playerY) {
       endGame(false);
     }
@@ -139,11 +127,11 @@ export default function Home() {
     for (let y = 0; y < 10; y++) {
       for (let x = 0; x < 10; x++) {
         if (x === playerX && y === playerY) {
-          out += "🧍";
-        } else if (x === monsterX && y === monsterY) {
-          out += "👾";
-        } else if (x === exitX && y === exitY) {
           out += "🟩";
+        } else if (x === monsterX && y === monsterY) {
+          out += "🟪";
+        } else if (x === exitX && y === exitY) {
+          out += "🟧";
         } else if (maze[y][x] === 0) {
           out += "🟥";
         } else {
@@ -156,25 +144,19 @@ export default function Home() {
   };
 
   useEffect(() => {
-    startGame();
+    initGame();
   }, []);
 
   return (
     <main className="flex flex-col gap-3 place-items-center place-content-center px-4 grow">
       <h1 className="text-2xl font-bold">{title}</h1>
-      <p>Player Position: ({playerX},{playerY})</p>
-      <p>Monster Position: ({monsterX},{monsterY})</p>
-      <p>Exit: ({exitX},{exitY})</p>
-      <p>Moves: {moves}</p>
-      <p>Time Left: {timeLeft}</p>
-      <p>{message}</p>
       <pre className="text-sm font-mono whitespace-pre-wrap">{buildGrid()}</pre>
       <div className="flex gap-2">
         <Button onClick={() => move("Up")}>Up</Button>
         <Button onClick={() => move("Down")}>Down</Button>
         <Button onClick={() => move("Left")}>Left</Button>
         <Button onClick={() => move("Right")}>Right</Button>
-        <Button onClick={startGame}>Restart</Button>
+        <Button onClick={initGame}>Restart</Button>
       </div>
     </main>
   );
