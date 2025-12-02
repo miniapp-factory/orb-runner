@@ -150,7 +150,7 @@ export default function Home() {
           out += "👹";
         } else if (x === exitX && y === exitY) {
           out += "🟧";
-        } else if (maze[y][x] === 0) {
+        } else if (maze[y][x] === 1) {
           out += "🟥";
         } else {
           out += "🟦";
