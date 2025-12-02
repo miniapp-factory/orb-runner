@@ -878,3 +878,25 @@
 +Exit: (5,5)
 +
 +Moves: 0
+
+# 2025-12-02 18:21:35.840784
++Title: Monster Chase Maze 10×10 Neon Smooth
++Description: A neon-colored maze game with smooth animations, random 10×10 labyrinth generation, and a monster that intelligently chases the player.
++Category: Game
++
++Persistent State:
++- maze (10×10 grid)
++- rows = 10
++- cols = 
++
+
+# 2025-12-02 18:21:35.846393
++Title: Monster Chase Maze 10×10 Neon Smooth
++Description: A neon-colored maze game with smooth animations, random 10×10 labyrinth generation, and a monster that intelligently chases the player.
++Category: Game
++
++Persistent State:
++- maze (10×10 grid)
++- rows = 10
++- cols = 
++
