@@ -1204,3 +1204,379 @@
 +If gameOver:
 +Button → "Restart" → initGame()
 +
+
+# 2025-12-02 19:14:42.922652
++Title: Monster Chase Neon Maze
++Description: Navigate a neon maze while a monster hunts you. Smooth movement simulation, intelligent monster, and guaranteed solvable maze.
++Category: Game
++
++Persistent State:
++- maze
++- rows
++- cols
++- playerX
++- playerY
++- monsterX
++- monsterY
++- exitX
++- exitY
++- message
++- gameOver
++- animStep
++- animMax
++
++On App Load:
++Call initGame().
++
++initGame():
++rows = 10
++cols = 10
++gameOver = false
++animStep = 0
++animMax = 2
++message = "Escape the maze!"
++
++// Generate empty maze
++maze = []
++for y 0..rows-1:
++  row = []
++  for x 0..cols-1:
++    row.push(1)
++  maze.push(row)
++
++// Guaranteed path carving
++px = 0
++py = 0
++maze[py][px] = 0
++while px != cols-1 or py != rows-1:
++  if random() < 0.5 and px < cols-1:
++    px += 1
++  else if py < rows-1:
++    py += 1
++  maze[py][px] = 0
++
++// Add random openings
++for i 0..40:
++  rx = floor(random()*cols)
++  ry = floor(random()*rows)
++  maze[ry][rx] = 0
++
++// Starting positions
++playerX = 0
++playerY = 0
++exitX = cols-1
++exitY = rows-1
++monsterX = cols-1
++monsterY = rows-2
++
++render()
++
++
++// MOVEMENT ------------------------------------------------
++
++move(dir):
++if gameOver → return
++
++nx = playerX
++ny = playerY
++
++if dir == "Up": ny -= 1
++if dir == "Down": ny += 1
++if dir == "Left": nx -= 1
++if dir == "Right": nx += 1
++
++if nx < 0 or ny < 0 or nx >= cols or ny >= rows:
++  return
++
++if maze[ny][nx] == 1:
++  return
++
++// smooth animation
++animStep = 0
++animatePlayer(nx, ny)
++
++animatePlayer(nx, ny):
++if animStep < animMax:
++  animStep += 1
++  render()
++  return
++
++playerX = nx
++playerY = ny
++
++if playerX == exitX and playerY == exitY:
++  endGame(true)
++  return
++
++monsterChase()
++render()
++
++
++// MONSTER AI ---------------------------------------------
++
++monsterChase():
++dx = playerX - monsterX
++dy = playerY - monsterY
++
++options = []
++
++if abs(dx) > abs(dy):
++  options.push([monsterX + sign(dx), monsterY])
++  options.push([monsterX, monsterY + sign(dy)])
++else:
++  options.push([monsterX, monsterY + sign(dy)])
++  options.push([monsterX + sign(dx), monsterY])
++
++// fallback
++options.push([monsterX+1, monsterY])
++options.push([monsterX-1, monsterY])
++options.push([monsterX, monsterY+1])
++options.push([monsterX, monsterY-1])
++
++for each op in options:
++  ox = op[0]
++  oy = op[1]
++  if ox >= 0 and oy >= 0 and ox < cols and oy < rows:
++    if maze[oy][ox] == 0:
++       monsterX = ox
++       monsterY = oy
++       break
++
++if monsterX == playerX and monsterY == playerY:
++  endGame(false)
++
++
++// ENDGAME ----------------------------------------------
++
++endGame(win):
++gameOver = true
++if win:
++  message = "🏆 You escaped!"
++else:
++  message = "💀 The monster caught you!"
++render()
++
++
++
++// RENDER ------------------------------------------------
++
++render():
++grid = ""
++for y 0..rows-1:
++  row = ""
++  for x 0..cols-1:
++    if x == playerX and y == playerY:
++      row += "🧍"
++    else if x == monsterX and y == monsterY:
++      row += "👹"
++    else if x == exitX and y == exitY:
++      row += "🟧"
++    else if maze[y][x] == 1:
++      row += "🟥"
++    else:
++      row += "🟦"
++  grid += row + "\n"
++
++Display:
++- "Monster Chase Maze"
++- message
++- grid
++
++If NOT gameOver:
++  Buttons:
++    Up → move("Up")
++    Down → move("Down")
++    Left → move("Left")
++    Right → move("Right")
++
++Else:
++  Button: "Restart" → initGame()
++
+
+# 2025-12-02 19:14:42.924527
++Title: Monster Chase Neon Maze
++Description: Navigate a neon maze while a monster hunts you. Smooth movement simulation, intelligent monster, and guaranteed solvable maze.
++Category: Game
++
++Persistent State:
++- maze
++- rows
++- cols
++- playerX
++- playerY
++- monsterX
++- monsterY
++- exitX
++- exitY
++- message
++- gameOver
++- animStep
++- animMax
++
++On App Load:
++Call initGame().
++
++initGame():
++rows = 10
++cols = 10
++gameOver = false
++animStep = 0
++animMax = 2
++message = "Escape the maze!"
++
++// Generate empty maze
++maze = []
++for y 0..rows-1:
++  row = []
++  for x 0..cols-1:
++    row.push(1)
++  maze.push(row)
++
++// Guaranteed path carving
++px = 0
++py = 0
++maze[py][px] = 0
++while px != cols-1 or py != rows-1:
++  if random() < 0.5 and px < cols-1:
++    px += 1
++  else if py < rows-1:
++    py += 1
++  maze[py][px] = 0
++
++// Add random openings
++for i 0..40:
++  rx = floor(random()*cols)
++  ry = floor(random()*rows)
++  maze[ry][rx] = 0
++
++// Starting positions
++playerX = 0
++playerY = 0
++exitX = cols-1
++exitY = rows-1
++monsterX = cols-1
++monsterY = rows-2
++
++render()
++
++
++// MOVEMENT ------------------------------------------------
++
++move(dir):
++if gameOver → return
++
++nx = playerX
++ny = playerY
++
++if dir == "Up": ny -= 1
++if dir == "Down": ny += 1
++if dir == "Left": nx -= 1
++if dir == "Right": nx += 1
++
++if nx < 0 or ny < 0 or nx >= cols or ny >= rows:
++  return
++
++if maze[ny][nx] == 1:
++  return
++
++// smooth animation
++animStep = 0
++animatePlayer(nx, ny)
++
++animatePlayer(nx, ny):
++if animStep < animMax:
++  animStep += 1
++  render()
++  return
++
++playerX = nx
++playerY = ny
++
++if playerX == exitX and playerY == exitY:
++  endGame(true)
++  return
++
++monsterChase()
++render()
++
++
++// MONSTER AI ---------------------------------------------
++
++monsterChase():
++dx = playerX - monsterX
++dy = playerY - monsterY
++
++options = []
++
++if abs(dx) > abs(dy):
++  options.push([monsterX + sign(dx), monsterY])
++  options.push([monsterX, monsterY + sign(dy)])
++else:
++  options.push([monsterX, monsterY + sign(dy)])
++  options.push([monsterX + sign(dx), monsterY])
++
++// fallback
++options.push([monsterX+1, monsterY])
++options.push([monsterX-1, monsterY])
++options.push([monsterX, monsterY+1])
++options.push([monsterX, monsterY-1])
++
++for each op in options:
++  ox = op[0]
++  oy = op[1]
++  if ox >= 0 and oy >= 0 and ox < cols and oy < rows:
++    if maze[oy][ox] == 0:
++       monsterX = ox
++       monsterY = oy
++       break
++
++if monsterX == playerX and monsterY == playerY:
++  endGame(false)
++
++
++// ENDGAME ----------------------------------------------
++
++endGame(win):
++gameOver = true
++if win:
++  message = "🏆 You escaped!"
++else:
++  message = "💀 The monster caught you!"
++render()
++
++
++
++// RENDER ------------------------------------------------
++
++render():
++grid = ""
++for y 0..rows-1:
++  row = ""
++  for x 0..cols-1:
++    if x == playerX and y == playerY:
++      row += "🧍"
++    else if x == monsterX and y == monsterY:
++      row += "👹"
++    else if x == exitX and y == exitY:
++      row += "🟧"
++    else if maze[y][x] == 1:
++      row += "🟥"
++    else:
++      row += "🟦"
++  grid += row + "\n"
++
++Display:
++- "Monster Chase Maze"
++- message
++- grid
++
++If NOT gameOver:
++  Buttons:
++    Up → move("Up")
++    Down → move("Down")
++    Left → move("Left")
++    Right → move("Right")
++
++Else:
++  Button: "Restart" → initGame()
++
