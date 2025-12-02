@@ -12,6 +12,8 @@ export default function Home() {
   const [exitX, setExitX] = useState(0);
   const [exitY, setExitY] = useState(0);
   const [moves, setMoves] = useState(0);
+  const [animStep, setAnimStep] = useState(0);
+  const [animMax, setAnimMax] = useState(2);
   const [monsterX, setMonsterX] = useState(0);
   const [monsterY, setMonsterY] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
@@ -19,41 +21,39 @@ export default function Home() {
   const [gameOver, setGameOver] = useState(false);
 
   const initGame = () => {
-    // Guaranteed-carve algorithm for a 10x10 maze
     const rows = 10;
     const cols = 10;
     const newMaze: number[][] = Array.from({ length: rows }, () =>
       Array.from({ length: cols }, () => 1)
     );
-    // Carve path from (0,0) to (9,9)
     let px = 0;
     let py = 0;
     newMaze[py][px] = 0;
     while (px !== cols - 1 || py !== rows - 1) {
-      if (Math.random() < 0.5) {
-        if (px < cols - 1) px += 1;
-      } else {
-        if (py < rows - 1) py += 1;
+      if (Math.random() < 0.5 && px < cols - 1) {
+        px += 1;
+      } else if (py < rows - 1) {
+        py += 1;
       }
       newMaze[py][px] = 0;
     }
-    // Add random extra openings
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 40; i++) {
       const rx = Math.floor(Math.random() * cols);
       const ry = Math.floor(Math.random() * rows);
       newMaze[ry][rx] = 0;
     }
-    // Set positions
     setPlayerX(0);
     setPlayerY(0);
-    setMonsterX(cols - 1);
-    setMonsterY(rows - 1);
     setExitX(cols - 1);
     setExitY(rows - 1);
+    setMonsterX(cols - 1);
+    setMonsterY(rows - 2);
     setMaze(newMaze);
     setMoves(0);
     setTimeLeft(30);
     setGameOver(false);
+    setAnimStep(0);
+    setAnimMax(2);
     setMessage("Escape the maze!");
   };
 
@@ -66,11 +66,11 @@ export default function Home() {
     if (dir === "Left") newX -= 1;
     if (dir === "Right") newX += 1;
 
-    if (newX < 0 || newY < 0 || newX > 9 || newY > 9) {
+    if (newX < 0 || newY < 0 || newX >= 10 || newY >= 10) {
       setMessage("Boundary!");
       return;
     }
-    if (maze[newY][newX] === 0) {
+    if (maze[newY][newX] === 1) {
       setMessage("You hit a wall!");
       return;
     }
@@ -79,7 +79,7 @@ export default function Home() {
     setPlayerX(newX);
     setPlayerY(newY);
     setMoves(newMoves);
-    setTimeLeft(timeLeft - 1);
+    setTimeLeft(prev => prev - 1);
     setMessage(`You moved ${dir}. Time left: ${timeLeft - 1}`);
 
     if (newX === exitX && newY === exitY) {
@@ -99,23 +99,38 @@ export default function Home() {
   const endGame = (won: boolean) => {
     setGameOver(true);
     if (won) {
-      setMessage(`🏆 Escaped! Moves: ${moves}`);
+      setMessage(`🏆 You escaped! Moves: ${moves}`);
     } else {
-      setMessage(`💀 Caught by monster!`);
+      setMessage(`💀 The monster caught you!`);
     }
   };
 
   const monsterMove = () => {
     const dx = playerX - monsterX;
     const dy = playerY - monsterY;
+    const options: [number, number][] = [];
     if (Math.abs(dx) > Math.abs(dy)) {
-      setMonsterX(monsterX + Math.sign(dx));
+      options.push([monsterX + Math.sign(dx), monsterY]);
+      options.push([monsterX, monsterY + Math.sign(dy)]);
     } else {
-      setMonsterY(monsterY + Math.sign(dy));
+      options.push([monsterX, monsterY + Math.sign(dy)]);
+      options.push([monsterX + Math.sign(dx), monsterY]);
     }
-    if (maze[monsterY][monsterX] === 0) {
-      // stay in place if next cell is a wall
+    options.push([monsterX + 1, monsterY]);
+    options.push([monsterX - 1, monsterY]);
+    options.push([monsterX, monsterY + 1]);
+    options.push([monsterX, monsterY - 1]);
+
+    for (const [ox, oy] of options) {
+      if (ox >= 0 && oy >= 0 && ox < 10 && oy < 10) {
+        if (maze[oy][ox] === 0) {
+          setMonsterX(ox);
+          setMonsterY(oy);
+          break;
+        }
+      }
     }
+
     if (monsterX === playerX && monsterY === playerY) {
       endGame(false);
     }
@@ -133,9 +148,9 @@ export default function Home() {
         } else if (x === exitX && y === exitY) {
           out += "🟧";
         } else if (maze[y][x] === 0) {
-          out += "🟥";
-        } else {
           out += "🟦";
+        } else {
+          out += "🟥";
         }
       }
       out += "\n";
@@ -150,6 +165,7 @@ export default function Home() {
   return (
     <main className="flex flex-col gap-3 place-items-center place-content-center px-4 grow">
       <h1 className="text-2xl font-bold">{title}</h1>
+      <p className="text-sm">{message}</p>
       <pre className="text-sm font-mono whitespace-pre-wrap">{buildGrid()}</pre>
       <div className="flex gap-2">
         {!gameOver && (
