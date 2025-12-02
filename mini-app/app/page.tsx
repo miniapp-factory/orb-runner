@@ -50,7 +50,7 @@ export default function Home() {
     if (dir === "Left") newX -= 1;
     if (dir === "Right") newX += 1;
 
-    if (newX < 0 || newY < 0 || newX > 6 || newY > 6) {
+    if (newX < 0 || newY < 0 || newX > 9 || newY > 9) {
       setMessage("Boundary!");
       return;
     }
@@ -105,8 +105,8 @@ export default function Home() {
   const buildGrid = () => {
     if (!maze || maze.length === 0) return "";
     let out = "";
-    for (let y = 0; y < 7; y++) {
-      for (let x = 0; x < 7; x++) {
+    for (let y = 0; y < 10; y++) {
+      for (let x = 0; x < 10; x++) {
         if (x === playerX && y === playerY) {
           out += "🧍";
         } else if (x === monsterX && y === monsterY) {
