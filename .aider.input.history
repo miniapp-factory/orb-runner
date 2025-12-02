@@ -1836,3 +1836,373 @@
 +- Ensure initGame always places player, monster and exit on path cells.
 +- Use a large font-size in the grid container so emoji squares appear big, not tiny.
 +
+
+# 2025-12-02 22:30:06.475303
++Title: Monster Chase  Maze
++Description: Escape a maze while a monster hunts you. Player, monster, walls and exit are displayed correctly. Fully compatible with Base Mini App Factory.
++Category: Game
++
++Persistent State:
++- maze
++- rows
++- cols
++- playerX
++- playerY
++- monsterX
++- monsterY
++- exitX
++- exitY
++- message
++- gameOver
++
++On App Load:
++initGame()
++
++Functions:
++
++initGame():
++  rows = 10
++  cols = 10
++  gameOver = false
++  message = "Escape the maze!"
++
++  maze = []
++
++  // Create full wall grid
++  for (let y = 0; y < rows; y++) {
++    let row = []
++    for (let x = 0; x < cols; x++) {
++      row.push(1)
++    }
++    maze.push(row)
++  }
++
++  // Guaranteed path
++  let px = 0
++  let py = 0
++  maze[py][px] = 0
++
++  while (px !== cols - 1 || py !== rows - 1) {
++    if (Math.random() < 0.5 && px < cols - 1) {
++      px++
++    } else if (py < rows - 1) {
++      py++
++    }
++    maze[py][px] = 0
++  }
++
++  // Random openings
++  for (let i = 0; i < 40; i++) {
++    let rx = Math.floor(Math.random() * cols)
++    let ry = Math.floor(Math.random() * rows)
++    maze[ry][rx] = 0
++  }
++
++  // Start positions
++  playerX = 0
++  playerY = 0
++  exitX = cols - 1
++  exitY = rows - 1
++  monsterX = cols - 1
++  monsterY = rows - 2
++
++
++move(direction):
++  if (gameOver) return
++
++  let nx = playerX
++  let ny = playerY
++
++  if (direction === "Up") ny--
++  if (direction === "Down") ny++
++  if (direction === "Left") nx--
++  if (direction === "Right") nx++
++
++  if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) return
++  if (maze[ny][nx] === 1) return
++
++  playerX = nx
++  playerY = ny
++
++  if (playerX === exitX && playerY === exitY) {
++    endGame(true)
++    return
++  }
++
++  monsterChase()
++
++
++monsterChase():
++  function sign(v) {
++    return v > 0 ? 1 : v < 0 ? -1 : 0
++  }
++
++  let dx = playerX - monsterX
++  let dy = playerY - monsterY
++
++  let options = []
++
++  if (Math.abs(dx) > Math.abs(dy)) {
++    options.push([monsterX + sign(dx), monsterY])
++    options.push([monsterX, monsterY + sign(dy)])
++  } else {
++    options.push([monsterX, monsterY + sign(dy)])
++    options.push([monsterX + sign(dx), monsterY])
++  }
++
++  // fallback moves
++  options.push([monsterX + 1, monsterY])
++  options.push([monsterX - 1, monsterY])
++  options.push([monsterX, monsterY + 1])
++  options.push([monsterX, monsterY - 1])
++
++  for (let op of options) {
++    let ox = op[0]
++    let oy = op[1]
++
++    if (ox >= 0 && oy >= 0 && ox < cols && oy < rows) {
++      if (maze[oy][ox] === 0) {
++        monsterX = ox
++        monsterY = oy
++        break
++      }
++    }
++  }
++
++  if (monsterX === playerX && monsterY === playerY) {
++    endGame(false)
++  }
++
++
++endGame(win):
++  gameOver = true
++  message = win ? "🏆 You escaped!" : "💀 The monster caught you!"
++
++
++Render:
++  let grid = ""
++
++  for (let y = 0; y < rows; y++) {
++    let row = ""
++    for (let x = 0; x < cols; x++) {
++
++      if (x === playerX && y === playerY) {
++        row += "🧍"
++      }
++      else if (x === monsterX && y === monsterY) {
++        row += "👹"
++      }
++      else if (x === exitX && y === exitY) {
++        row += "🟧"
++      }
++      else if (maze[y][x] === 1) {
++        row += "🟥"
++      }
++      else {
++        row += "🟦"
++      }
++    }
++    grid += row + "\n"
++  }
++
++  Display:
++  - "Monster Chase Maze"
++  - message
++  - grid
++
++  If (!gameOver):
++    Buttons:
++      Up → move("Up")
++      Down → move("Down")
++      Left → move("Left")
++      Right → move("Right")
++
++  Else:
++    Buttons:
++      Restart → initGame()
++
+
+# 2025-12-02 22:30:06.476596
++Title: Monster Chase  Maze
++Description: Escape a maze while a monster hunts you. Player, monster, walls and exit are displayed correctly. Fully compatible with Base Mini App Factory.
++Category: Game
++
++Persistent State:
++- maze
++- rows
++- cols
++- playerX
++- playerY
++- monsterX
++- monsterY
++- exitX
++- exitY
++- message
++- gameOver
++
++On App Load:
++initGame()
++
++Functions:
++
++initGame():
++  rows = 10
++  cols = 10
++  gameOver = false
++  message = "Escape the maze!"
++
++  maze = []
++
++  // Create full wall grid
++  for (let y = 0; y < rows; y++) {
++    let row = []
++    for (let x = 0; x < cols; x++) {
++      row.push(1)
++    }
++    maze.push(row)
++  }
++
++  // Guaranteed path
++  let px = 0
++  let py = 0
++  maze[py][px] = 0
++
++  while (px !== cols - 1 || py !== rows - 1) {
++    if (Math.random() < 0.5 && px < cols - 1) {
++      px++
++    } else if (py < rows - 1) {
++      py++
++    }
++    maze[py][px] = 0
++  }
++
++  // Random openings
++  for (let i = 0; i < 40; i++) {
++    let rx = Math.floor(Math.random() * cols)
++    let ry = Math.floor(Math.random() * rows)
++    maze[ry][rx] = 0
++  }
++
++  // Start positions
++  playerX = 0
++  playerY = 0
++  exitX = cols - 1
++  exitY = rows - 1
++  monsterX = cols - 1
++  monsterY = rows - 2
++
++
++move(direction):
++  if (gameOver) return
++
++  let nx = playerX
++  let ny = playerY
++
++  if (direction === "Up") ny--
++  if (direction === "Down") ny++
++  if (direction === "Left") nx--
++  if (direction === "Right") nx++
++
++  if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) return
++  if (maze[ny][nx] === 1) return
++
++  playerX = nx
++  playerY = ny
++
++  if (playerX === exitX && playerY === exitY) {
++    endGame(true)
++    return
++  }
++
++  monsterChase()
++
++
++monsterChase():
++  function sign(v) {
++    return v > 0 ? 1 : v < 0 ? -1 : 0
++  }
++
++  let dx = playerX - monsterX
++  let dy = playerY - monsterY
++
++  let options = []
++
++  if (Math.abs(dx) > Math.abs(dy)) {
++    options.push([monsterX + sign(dx), monsterY])
++    options.push([monsterX, monsterY + sign(dy)])
++  } else {
++    options.push([monsterX, monsterY + sign(dy)])
++    options.push([monsterX + sign(dx), monsterY])
++  }
++
++  // fallback moves
++  options.push([monsterX + 1, monsterY])
++  options.push([monsterX - 1, monsterY])
++  options.push([monsterX, monsterY + 1])
++  options.push([monsterX, monsterY - 1])
++
++  for (let op of options) {
++    let ox = op[0]
++    let oy = op[1]
++
++    if (ox >= 0 && oy >= 0 && ox < cols && oy < rows) {
++      if (maze[oy][ox] === 0) {
++        monsterX = ox
++        monsterY = oy
++        break
++      }
++    }
++  }
++
++  if (monsterX === playerX && monsterY === playerY) {
++    endGame(false)
++  }
++
++
++endGame(win):
++  gameOver = true
++  message = win ? "🏆 You escaped!" : "💀 The monster caught you!"
++
++
++Render:
++  let grid = ""
++
++  for (let y = 0; y < rows; y++) {
++    let row = ""
++    for (let x = 0; x < cols; x++) {
++
++      if (x === playerX && y === playerY) {
++        row += "🧍"
++      }
++      else if (x === monsterX && y === monsterY) {
++        row += "👹"
++      }
++      else if (x === exitX && y === exitY) {
++        row += "🟧"
++      }
++      else if (maze[y][x] === 1) {
++        row += "🟥"
++      }
++      else {
++        row += "🟦"
++      }
++    }
++    grid += row + "\n"
++  }
++
++  Display:
++  - "Monster Chase Maze"
++  - message
++  - grid
++
++  If (!gameOver):
++    Buttons:
++      Up → move("Up")
++      Down → move("Down")
++      Left → move("Left")
++      Right → move("Right")
++
++  Else:
++    Buttons:
++      Restart → initGame()
++
