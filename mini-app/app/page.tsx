@@ -24,11 +24,11 @@ export default function Home() {
     const rows = 10;
     const cols = 10;
     const newMaze: number[][] = Array.from({ length: rows }, () =>
-      Array.from({ length: cols }, () => 0)
+      Array.from({ length: cols }, () => 1)
     );
     let px = 0;
     let py = 0;
-    newMaze[py][px] = 1;
+    newMaze[py][px] = 0;
     while (px !== cols - 1 || py !== rows - 1) {
       if (Math.random() < 0.5 && px < cols - 1) {
         px += 1;
@@ -40,7 +40,7 @@ export default function Home() {
     for (let i = 0; i < 40; i++) {
       const rx = Math.floor(Math.random() * cols);
       const ry = Math.floor(Math.random() * rows);
-      newMaze[ry][rx] = 1;
+      newMaze[ry][rx] = 0;
     }
     setPlayerX(0);
     setPlayerY(0);
@@ -48,15 +48,15 @@ export default function Home() {
     setExitY(rows - 1);
     setMonsterX(cols - 1);
     setMonsterY(rows - 2);
-    newMaze[rows-1][cols-1] = 1;
-    newMaze[rows-2][cols-1] = 1;
+    newMaze[rows-1][cols-1] = 0;
+    newMaze[rows-2][cols-1] = 0;
     setMaze(newMaze);
     setMoves(0);
     setTimeLeft(30);
     setGameOver(false);
     setAnimStep(0);
     setAnimMax(2);
-    setMessage("Escape the maze! Use buttons. Restart always available.");
+    setMessage("Escape the maze!");
   };
 
   const move = (dir: string) => {
@@ -72,7 +72,7 @@ export default function Home() {
       setMessage("Boundary!");
       return;
     }
-    if (maze[newY][newX] === 0) {
+    if (maze[newY][newX] === 1) {
       setMessage("You hit a wall!");
       return;
     }
@@ -126,7 +126,7 @@ export default function Home() {
 
     for (const [ox, oy] of options) {
       if (ox >= 0 && oy >= 0 && ox < 10 && oy < 10) {
-        if (maze[oy][ox] === 1) {
+        if (maze[oy][ox] === 0) {
           setMonsterX(ox);
           setMonsterY(oy);
           break;
