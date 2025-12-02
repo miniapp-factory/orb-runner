@@ -716,3 +716,147 @@
 +Button:
 +- Restart → startGame()
 +
+
+# 2025-12-02 17:43:37.080317
++Title: Monster Maze Escape – Large & Moving Monster
++Description: Escape the maze! Player 🧍, Monster 👾, Exit 🟩. Quadrati grandi 50x50px. Monster sempre si muove verso giocatore.
++
++Persistent State:
++- maze (array of arrays) 0=wall,1=path
++- playerX, playerY
++- monsterX, monsterY
++- exitX, exitY
++- moves, timeLeft, message, gameOver
++- rows=7, cols=7
++
++startGame():
++maze = generateMaze(rows, cols)
++playerX=0; playerY=0
++monsterX=cols-1; monsterY=rows-1
++do:
++  exitX=randomInt(1,cols-2)
++  exitY=randomInt(1,rows-2)
++while maze[exitY][exitX]==0 || (exitX==playerX && exitY==playerY) || (exitX==monsterX && exitY==monsterY)
++moves=0; timeLeft=30; gameOver=false
++message="Escape the maze! Monster is chasing you!"
++render()
++
++buildGrid():
++for y=0..rows-1:
++  for x=0..cols-1:
++    cell = createDiv()
++    cell.width=50px; cell.height=50px; cell.border="1px solid black"
++    if x==playerX && y==playerY then cell.backgroundColor="blue"
++    else if x==monsterX && y==monsterY then cell.backgroundColor="red"
++    else if x==exitX && y==exitY then cell.backgroundColor="green"
++    else if maze[y][x]==0 then cell.backgroundColor="black"
++    else cell.backgroundColor="white"
++    appendToGridContainer(cell)
++
++move(dir):
++// check bordi e muri
++// aggiorna playerX/Y
++moves+=1; timeLeft-=1
++checkWin()
++monsterMove()
++checkMonsterCaught()
++render()
++
++monsterMove():
++dx=playerX-monsterX
++dy=playerY-monsterY
++moved=false
++// prova orizzontale
++if dx!=0:
++  nx=monsterX+sign(dx)
++  if maze[monsterY][nx]==1 then monsterX=nx; moved=true
++// prova verticale se non si è mosso
++if !moved && dy!=0:
++  ny=monsterY+sign(dy)
++  if maze[ny][monsterX]==1 then monsterY=ny; moved=true
++// se ancora bloccato, resta fermo
++
++checkWin():
++if playerX==exitX && playerY==exitY then endGame(true)
++if monsterX==playerX && monsterY==playerY then endGame(false)
++if timeLeft<=0 then endGame(false)
++
++endGame(won):
++gameOver=true
++message=won?"🏆 Escaped!":"💀 Caught by monster!"
++
++Restart button:
++sempre visibile, chiama startGame()
++
+
+# 2025-12-02 17:43:37.081263
++Title: Monster Maze Escape – Large & Moving Monster
++Description: Escape the maze! Player 🧍, Monster 👾, Exit 🟩. Quadrati grandi 50x50px. Monster sempre si muove verso giocatore.
++
++Persistent State:
++- maze (array of arrays) 0=wall,1=path
++- playerX, playerY
++- monsterX, monsterY
++- exitX, exitY
++- moves, timeLeft, message, gameOver
++- rows=7, cols=7
++
++startGame():
++maze = generateMaze(rows, cols)
++playerX=0; playerY=0
++monsterX=cols-1; monsterY=rows-1
++do:
++  exitX=randomInt(1,cols-2)
++  exitY=randomInt(1,rows-2)
++while maze[exitY][exitX]==0 || (exitX==playerX && exitY==playerY) || (exitX==monsterX && exitY==monsterY)
++moves=0; timeLeft=30; gameOver=false
++message="Escape the maze! Monster is chasing you!"
++render()
++
++buildGrid():
++for y=0..rows-1:
++  for x=0..cols-1:
++    cell = createDiv()
++    cell.width=50px; cell.height=50px; cell.border="1px solid black"
++    if x==playerX && y==playerY then cell.backgroundColor="blue"
++    else if x==monsterX && y==monsterY then cell.backgroundColor="red"
++    else if x==exitX && y==exitY then cell.backgroundColor="green"
++    else if maze[y][x]==0 then cell.backgroundColor="black"
++    else cell.backgroundColor="white"
++    appendToGridContainer(cell)
++
++move(dir):
++// check bordi e muri
++// aggiorna playerX/Y
++moves+=1; timeLeft-=1
++checkWin()
++monsterMove()
++checkMonsterCaught()
++render()
++
++monsterMove():
++dx=playerX-monsterX
++dy=playerY-monsterY
++moved=false
++// prova orizzontale
++if dx!=0:
++  nx=monsterX+sign(dx)
++  if maze[monsterY][nx]==1 then monsterX=nx; moved=true
++// prova verticale se non si è mosso
++if !moved && dy!=0:
++  ny=monsterY+sign(dy)
++  if maze[ny][monsterX]==1 then monsterY=ny; moved=true
++// se ancora bloccato, resta fermo
++
++checkWin():
++if playerX==exitX && playerY==exitY then endGame(true)
++if monsterX==playerX && monsterY==playerY then endGame(false)
++if timeLeft<=0 then endGame(false)
++
++endGame(won):
++gameOver=true
++message=won?"🏆 Escaped!":"💀 Caught by monster!"
++
++Restart button:
++sempre visibile, chiama startGame()
++
