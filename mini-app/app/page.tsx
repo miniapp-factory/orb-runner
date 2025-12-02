@@ -152,11 +152,15 @@ export default function Home() {
       <h1 className="text-2xl font-bold">{title}</h1>
       <pre className="text-sm font-mono whitespace-pre-wrap">{buildGrid()}</pre>
       <div className="flex gap-2">
-        <Button onClick={() => move("Up")}>Up</Button>
-        <Button onClick={() => move("Down")}>Down</Button>
-        <Button onClick={() => move("Left")}>Left</Button>
-        <Button onClick={() => move("Right")}>Right</Button>
-        <Button onClick={initGame}>Restart</Button>
+        {!gameOver && (
+          <>
+            <Button onClick={() => move("Up")}>Up</Button>
+            <Button onClick={() => move("Down")}>Down</Button>
+            <Button onClick={() => move("Left")}>Left</Button>
+            <Button onClick={() => move("Right")}>Right</Button>
+          </>
+        )}
+        {gameOver && <Button onClick={initGame}>Restart</Button>}
       </div>
     </main>
   );
