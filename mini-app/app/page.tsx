@@ -58,12 +58,57 @@ export default function Home() {
     }
     setMonsterX(monsterX);
     setMonsterY(monsterY);
+    // Place exit ensuring it is a path, not overlapping, has at least one open neighbor,
+    // and is reachable from the player via BFS.
+    const isReachable = (sx: number, sy: number, ex: number, ey: number): boolean => {
+      const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
+      const queue: [number, number][] = [[sx, sy]];
+      visited[sy][sx] = true;
+      while (queue.length) {
+        const [x, y] = queue.shift()!;
+        if (x === ex && y === ey) return true;
+        for (const [nx, ny] of [
+          [x + 1, y],
+          [x - 1, y],
+          [x, y + 1],
+          [x, y - 1],
+        ]) {
+          if (
+            nx >= 0 &&
+            ny >= 0 &&
+            nx < cols &&
+            ny < rows &&
+            newMaze[ny][nx] === 1 &&
+            !visited[ny][nx]
+          ) {
+            visited[ny][nx] = true;
+            queue.push([nx, ny]);
+          }
+        }
+      }
+      return false;
+    };
+
     let exitX = Math.floor(Math.random() * cols);
     let exitY = Math.floor(Math.random() * rows);
     while (
       newMaze[exitY][exitX] !== 1 ||
       (exitX === 0 && exitY === 0) ||
-      (exitX === monsterX && exitY === monsterY)
+      (exitX === monsterX && exitY === monsterY) ||
+      !isReachable(playerX, playerY, exitX, exitY) ||
+      ![
+        [exitX + 1, exitY],
+        [exitX - 1, exitY],
+        [exitX, exitY + 1],
+        [exitX, exitY - 1],
+      ].some(
+        ([nx, ny]) =>
+          nx >= 0 &&
+          ny >= 0 &&
+          nx < cols &&
+          ny < rows &&
+          newMaze[ny][nx] === 1
+      )
     ) {
       exitX = Math.floor(Math.random() * cols);
       exitY = Math.floor(Math.random() * rows);
@@ -99,6 +144,10 @@ export default function Home() {
     setMoves(newMoves);
     const newTimeLeft = timeLeft - 1;
     setTimeLeft(newTimeLeft);
+    if (newTimeLeft <= 0) {
+      endGame(false);
+      return;
+    }
 
     if (newX === exitX && newY === exitY) {
       endGame(true);
