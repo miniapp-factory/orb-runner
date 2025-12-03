@@ -13,8 +13,6 @@ export default function Home() {
   const [exitX, setExitX] = useState(0);
   const [exitY, setExitY] = useState(0);
   const [moves, setMoves] = useState(0);
-  const [animStep, setAnimStep] = useState(0);
-  const [animMax, setAnimMax] = useState(2);
   const [monsterX, setMonsterX] = useState(0);
   const [monsterY, setMonsterY] = useState(0);
   const [timeLeft, setTimeLeft] = useState(0);
@@ -76,8 +74,6 @@ export default function Home() {
     setMoves(0);
     setTimeLeft(30);
     setGameOver(false);
-    setAnimStep(0);
-    setAnimMax(2);
     setMessage("Escape the maze! Use buttons. Restart always available.");
   };
 
@@ -91,11 +87,9 @@ export default function Home() {
     if (dir === "Right") newX += 1;
 
     if (newX < 0 || newY < 0 || newX >= 10 || newY >= 10) {
-      setMessage("Boundary!");
       return;
     }
     if (maze[newY][newX] === 0) {
-      setMessage("You hit a wall!");
       return;
     }
 
@@ -105,7 +99,6 @@ export default function Home() {
     setMoves(newMoves);
     const newTimeLeft = timeLeft - 1;
     setTimeLeft(newTimeLeft);
-    setMessage(`You moved ${dir}. Time left: ${newTimeLeft}`);
 
     if (newX === exitX && newY === exitY) {
       endGame(true);
