@@ -4642,3 +4642,627 @@
 +</body>
 +</html>
 +
+
+# 2025-12-03 14:04:22.546085
++Title: Monster Chase Maze — Emoji Grid (Fixed)
++Description: 10×10 neon emoji maze. Player 🧍 and Monster 👹 move inside a grid. Exit 🟧 is always reachable and never blocked. Monster chase logic included. Restart always works.
++
++Category: Game
++Style: Text + emoji grid.
++
++Persistent State:
++- maze (2D array)          // 0 = wall, 1 = path
++- rows = 10
++- cols = 10
++- playerX, playerY
++- monsterX, monsterY
++- exitX, exitY
++- moves, timeLeft
++- message
++- gameOver
++
++On App Load:
++Call initGame().
++
++Functions:
++
++initGame():
++- rows = 10; cols = 10
++- maze = 10×10 array filled with 0 (walls)
++- carve a guaranteed path from (0,0) to (9,9)
++- carve 40 extra random path tiles
++- place player at (0,0)
++- place monster near bottom-right on nearest path tile
++- place exit using a safe, guaranteed-reachable algorithm:
++    • must be path tile
++    • cannot overlap player or monster
++    • must have at least 1 open neighbor
++    • must be BFS-reachable from player
++- moves = 0; timeLeft = 30; gameOver = false
++- message = "Escape the maze!"
++- render()
++
++placeMonster():
++- try bottom-right
++- if blocked, search backwards for nearest path tile
++
++isReachable(sx, sy, ex, ey):
++- BFS (up/down/left/right)
++- returns true if exit is reachable
++
++placeExit():   // included inside initGame()
++- while true:
++    • random exitX, exitY
++    • must be path (maze[y][x] == 1)
++    • cannot overlap player or monster
++    • must have at least one adjacent path tile
++    • must be reachable via BFS
++    • break
++
++move(dir):
++- ignore if gameOver
++- calculate new position
++- ignore if out of bounds or hits wall
++- move player, subtract timeLeft
++- check win
++- monsterMove()
++- check lose (monster or time)
++- render()
++
++monsterMove():
++- prioritize reducing the largest distance axis (horizontal or vertical)
++- fallback: check all 4 neighbors
++- choose first valid path tile
++
++endGame(win):
++- set gameOver = true
++- message = win ? "🏆 You escaped!" : "💀 The monster caught you!"
++- render()
++
++render():
++- build emoji grid:
++    🧍 player  
++    👹 monster  
++    🟧 exit  
++    🟥 wall  
++    🟦 path  
++- show Title, message, grid, buttons:
++    Up / Down / Left / Right / Restart
++
++Full Code (HTML for Mini App Base Factory):
++
++<!DOCTYPE html>
++<html lang="en">
++<head>
++<meta charset="UTF-8">
++<title>Monster Chase Maze</title>
++<style>
++  body { font-family: monospace; text-align: center; background: #111; color: #fff; }
++  pre { font-size: 32px; line-height: 1.2; display: inline-block; margin: 20px auto; }
++  button { font-size: 20px; margin: 5px; padding: 10px; }
++  #message { font-size: 24px; margin-top: 10px; }
++</style>
++</head>
++<body>
++<h1>Monster Chase Maze 🧍👹🟧</h1>
++<div id="message"></div>
++<pre id="grid"></pre>
++<div>
++  <button onclick="move('Up')">Up</button>
++  <button onclick="move('Down')">Down</button>
++  <button onclick="move('Left')">Left</button>
++  <button onclick="move('Right')">Right</button>
++  <button onclick="initGame()">Restart</button>
++</div>
++
++<script>
++let rows, cols;
++let maze = [];
++let playerX, playerY;
++let monsterX, monsterY;
++let exitX, exitY;
++let moves, timeLeft, gameOver;
++let messageEl = document.getElementById('message');
++let gridEl = document.getElementById('grid');
++
++// INIT
++function initGame() {
++  rows = 10; cols = 10;
++  maze = Array.from({length: rows}, ()=> Array(cols).fill(0));
++
++  // carve guaranteed path
++  let x = 0, y = 0;
++  maze[y][x] = 1;
++  while (x < cols-1 || y < rows-1) {
++    if (Math.random() < 0.5 && x < cols-1) x++;
++    else if (y < rows-1) y++;
++    maze[y][x] = 1;
++  }
++
++  // extra random paths
++  for (let i = 0; i < 40; i++) {
++    let rx = Math.floor(Math.random()*cols);
++    let ry = Math.floor(Math.random()*rows);
++    maze[ry][rx] = 1;
++  }
++
++  // player start
++  playerX = 0; 
++  playerY = 0;
++
++  // monster placement
++  [monsterX, monsterY] = placeMonster();
++
++  // exit placement (safe & reachable)
++  while (true) {
++    exitX = Math.floor(Math.random()*cols);
++    exitY = Math.floor(Math.random()*rows);
++
++    if (maze[exitY][exitX] !== 1) continue;
++    if ((exitX === playerX && exitY === playerY) ||
++        (exitX === monsterX && exitY === monsterY)) continue;
++
++    let neighbors = [
++      [exitX+1, exitY],
++      [exitX-1, exitY],
++      [exitX, exitY+1],
++      [exitX, exitY-1]
++    ];
++
++    let hasOpenNeighbor = neighbors.some(([nx, ny]) =>
++      nx>=0 && ny>=0 && nx<cols && ny<rows &&
++      maze[ny][nx] === 1
++    );
++    if (!hasOpenNeighbor) continue;
++
++    if (!isReachable(playerX, playerY, exitX, exitY)) continue;
++
++    break;
++  }
++
++  moves = 0;
++  timeLeft = 30;
++  gameOver = false;
++  messageEl.textContent = "Escape the maze!";
++  render();
++}
++
++// place monster
++function placeMonster() {
++  let x = cols-1, y = rows-1;
++  if (maze[y][x] === 1) return [x, y];
++
++  for (let yy = rows-1; yy >= 0; yy--) {
++    for (let xx = cols-1; xx >= 0; xx--) {
++      if (maze[yy][xx] === 1) return [xx, yy];
++    }
++  }
++  return [cols-1, rows-1];
++}
++
++// BFS
++function isReachable(sx, sy, ex, ey) {
++  let visited = Array.from({length: rows}, ()=> Array(cols).fill(false));
++  let queue = [[sx, sy]];
++  visited[sy][sx] = true;
++
++  while (queue.length > 0) {
++    let [x, y] = queue.shift();
++    if (x === ex && y === ey) return true;
++
++    for (let [nx, ny] of [[x+1,y],[x-1,y],[x,y+1],[x,y-1]]) {
++      if (nx>=0 && ny>=0 && nx<cols && ny<rows &&
++          maze[ny][nx] === 1 && !visited[ny][nx]) {
++        visited[ny][nx] = true;
++        queue.push([nx, ny]);
++      }
++    }
++  }
++  return false;
++}
++
++// movement
++function move(dir) {
++  if (gameOver) return;
++
++  let nx = playerX, ny = playerY;
++  if (dir === "Up") ny--;
++  if (dir === "Down") ny++;
++  if (dir === "Left") nx--;
++  if (dir === "Right") nx++;
++
++  if (nx<0||ny<0||nx>=cols||ny>=rows) return;
++  if (maze[ny][nx] === 0) return;
++
++  playerX = nx;
++  playerY = ny;
++  moves++;
++  timeLeft--;
++
++  if (playerX === exitX && playerY === exitY) {
++    endGame(true);
++    return;
++  }
++
++  monsterMove();
++
++  if (monsterX === playerX && monsterY === playerY) {
++    endGame(false);
++    return;
++  }
++
++  if (timeLeft <= 0) {
++    endGame(false);
++    return;
++  }
++
++  render();
++}
++
++// monster movement
++function monsterMove() {
++  if (gameOver) return;
++
++  let dx = playerX - monsterX;
++  let dy = playerY - monsterY;
++  let options = [];
++
++  if (Math.abs(dx) >= Math.abs(dy)) {
++    options.push([monsterX + Math.sign(dx), monsterY]);
++    options.push([monsterX, monsterY + Math.sign(dy)]);
++  } else {
++    options.push([monsterX, monsterY + Math.sign(dy)]);
++    options.push([monsterX + Math.sign(dx), monsterY]);
++  }
++
++  options.push([monsterX+1,monsterY],[monsterX-1,monsterY],
++               [monsterX,monsterY+1],[monsterX,monsterY-1]);
++
++  for (let [ox, oy] of options) {
++    if (ox>=0&&oy>=0&&ox<cols&&oy<rows && maze[oy][ox] === 1) {
++      monsterX = ox;
++      monsterY = oy;
++      break;
++    }
++  }
++}
++
++function endGame(win) {
++  gameOver = true;
++  messageEl.textContent = win ? "🏆 You escaped!" : "💀 The monster caught you!";
++  render();
++}
++
++// render grid
++function render() {
++  let lines = "";
++  for (let y = 0; y < rows; y++) {
++    for (let x = 0; x < cols; x++) {
++      if (x === playerX && y === playerY) lines += "🧍";
++      else if (x === monsterX && y === monsterY) lines += "👹";
++      else if (x === exitX && y === exitY) lines += "🟧";
++      else if (maze[y][x] === 0) lines += "🟥";
++      else lines += "🟦";
++    }
++    lines += "\n";
++  }
++  gridEl.textContent = lines;
++}
++
++initGame();
++</script>
++</body>
++</html>
++
+
+# 2025-12-03 14:04:22.548357
++Title: Monster Chase Maze — Emoji Grid (Fixed)
++Description: 10×10 neon emoji maze. Player 🧍 and Monster 👹 move inside a grid. Exit 🟧 is always reachable and never blocked. Monster chase logic included. Restart always works.
++
++Category: Game
++Style: Text + emoji grid.
++
++Persistent State:
++- maze (2D array)          // 0 = wall, 1 = path
++- rows = 10
++- cols = 10
++- playerX, playerY
++- monsterX, monsterY
++- exitX, exitY
++- moves, timeLeft
++- message
++- gameOver
++
++On App Load:
++Call initGame().
++
++Functions:
++
++initGame():
++- rows = 10; cols = 10
++- maze = 10×10 array filled with 0 (walls)
++- carve a guaranteed path from (0,0) to (9,9)
++- carve 40 extra random path tiles
++- place player at (0,0)
++- place monster near bottom-right on nearest path tile
++- place exit using a safe, guaranteed-reachable algorithm:
++    • must be path tile
++    • cannot overlap player or monster
++    • must have at least 1 open neighbor
++    • must be BFS-reachable from player
++- moves = 0; timeLeft = 30; gameOver = false
++- message = "Escape the maze!"
++- render()
++
++placeMonster():
++- try bottom-right
++- if blocked, search backwards for nearest path tile
++
++isReachable(sx, sy, ex, ey):
++- BFS (up/down/left/right)
++- returns true if exit is reachable
++
++placeExit():   // included inside initGame()
++- while true:
++    • random exitX, exitY
++    • must be path (maze[y][x] == 1)
++    • cannot overlap player or monster
++    • must have at least one adjacent path tile
++    • must be reachable via BFS
++    • break
++
++move(dir):
++- ignore if gameOver
++- calculate new position
++- ignore if out of bounds or hits wall
++- move player, subtract timeLeft
++- check win
++- monsterMove()
++- check lose (monster or time)
++- render()
++
++monsterMove():
++- prioritize reducing the largest distance axis (horizontal or vertical)
++- fallback: check all 4 neighbors
++- choose first valid path tile
++
++endGame(win):
++- set gameOver = true
++- message = win ? "🏆 You escaped!" : "💀 The monster caught you!"
++- render()
++
++render():
++- build emoji grid:
++    🧍 player  
++    👹 monster  
++    🟧 exit  
++    🟥 wall  
++    🟦 path  
++- show Title, message, grid, buttons:
++    Up / Down / Left / Right / Restart
++
++Full Code (HTML for Mini App Base Factory):
++
++<!DOCTYPE html>
++<html lang="en">
++<head>
++<meta charset="UTF-8">
++<title>Monster Chase Maze</title>
++<style>
++  body { font-family: monospace; text-align: center; background: #111; color: #fff; }
++  pre { font-size: 32px; line-height: 1.2; display: inline-block; margin: 20px auto; }
++  button { font-size: 20px; margin: 5px; padding: 10px; }
++  #message { font-size: 24px; margin-top: 10px; }
++</style>
++</head>
++<body>
++<h1>Monster Chase Maze 🧍👹🟧</h1>
++<div id="message"></div>
++<pre id="grid"></pre>
++<div>
++  <button onclick="move('Up')">Up</button>
++  <button onclick="move('Down')">Down</button>
++  <button onclick="move('Left')">Left</button>
++  <button onclick="move('Right')">Right</button>
++  <button onclick="initGame()">Restart</button>
++</div>
++
++<script>
++let rows, cols;
++let maze = [];
++let playerX, playerY;
++let monsterX, monsterY;
++let exitX, exitY;
++let moves, timeLeft, gameOver;
++let messageEl = document.getElementById('message');
++let gridEl = document.getElementById('grid');
++
++// INIT
++function initGame() {
++  rows = 10; cols = 10;
++  maze = Array.from({length: rows}, ()=> Array(cols).fill(0));
++
++  // carve guaranteed path
++  let x = 0, y = 0;
++  maze[y][x] = 1;
++  while (x < cols-1 || y < rows-1) {
++    if (Math.random() < 0.5 && x < cols-1) x++;
++    else if (y < rows-1) y++;
++    maze[y][x] = 1;
++  }
++
++  // extra random paths
++  for (let i = 0; i < 40; i++) {
++    let rx = Math.floor(Math.random()*cols);
++    let ry = Math.floor(Math.random()*rows);
++    maze[ry][rx] = 1;
++  }
++
++  // player start
++  playerX = 0; 
++  playerY = 0;
++
++  // monster placement
++  [monsterX, monsterY] = placeMonster();
++
++  // exit placement (safe & reachable)
++  while (true) {
++    exitX = Math.floor(Math.random()*cols);
++    exitY = Math.floor(Math.random()*rows);
++
++    if (maze[exitY][exitX] !== 1) continue;
++    if ((exitX === playerX && exitY === playerY) ||
++        (exitX === monsterX && exitY === monsterY)) continue;
++
++    let neighbors = [
++      [exitX+1, exitY],
++      [exitX-1, exitY],
++      [exitX, exitY+1],
++      [exitX, exitY-1]
++    ];
++
++    let hasOpenNeighbor = neighbors.some(([nx, ny]) =>
++      nx>=0 && ny>=0 && nx<cols && ny<rows &&
++      maze[ny][nx] === 1
++    );
++    if (!hasOpenNeighbor) continue;
++
++    if (!isReachable(playerX, playerY, exitX, exitY)) continue;
++
++    break;
++  }
++
++  moves = 0;
++  timeLeft = 30;
++  gameOver = false;
++  messageEl.textContent = "Escape the maze!";
++  render();
++}
++
++// place monster
++function placeMonster() {
++  let x = cols-1, y = rows-1;
++  if (maze[y][x] === 1) return [x, y];
++
++  for (let yy = rows-1; yy >= 0; yy--) {
++    for (let xx = cols-1; xx >= 0; xx--) {
++      if (maze[yy][xx] === 1) return [xx, yy];
++    }
++  }
++  return [cols-1, rows-1];
++}
++
++// BFS
++function isReachable(sx, sy, ex, ey) {
++  let visited = Array.from({length: rows}, ()=> Array(cols).fill(false));
++  let queue = [[sx, sy]];
++  visited[sy][sx] = true;
++
++  while (queue.length > 0) {
++    let [x, y] = queue.shift();
++    if (x === ex && y === ey) return true;
++
++    for (let [nx, ny] of [[x+1,y],[x-1,y],[x,y+1],[x,y-1]]) {
++      if (nx>=0 && ny>=0 && nx<cols && ny<rows &&
++          maze[ny][nx] === 1 && !visited[ny][nx]) {
++        visited[ny][nx] = true;
++        queue.push([nx, ny]);
++      }
++    }
++  }
++  return false;
++}
++
++// movement
++function move(dir) {
++  if (gameOver) return;
++
++  let nx = playerX, ny = playerY;
++  if (dir === "Up") ny--;
++  if (dir === "Down") ny++;
++  if (dir === "Left") nx--;
++  if (dir === "Right") nx++;
++
++  if (nx<0||ny<0||nx>=cols||ny>=rows) return;
++  if (maze[ny][nx] === 0) return;
++
++  playerX = nx;
++  playerY = ny;
++  moves++;
++  timeLeft--;
++
++  if (playerX === exitX && playerY === exitY) {
++    endGame(true);
++    return;
++  }
++
++  monsterMove();
++
++  if (monsterX === playerX && monsterY === playerY) {
++    endGame(false);
++    return;
++  }
++
++  if (timeLeft <= 0) {
++    endGame(false);
++    return;
++  }
++
++  render();
++}
++
++// monster movement
++function monsterMove() {
++  if (gameOver) return;
++
++  let dx = playerX - monsterX;
++  let dy = playerY - monsterY;
++  let options = [];
++
++  if (Math.abs(dx) >= Math.abs(dy)) {
++    options.push([monsterX + Math.sign(dx), monsterY]);
++    options.push([monsterX, monsterY + Math.sign(dy)]);
++  } else {
++    options.push([monsterX, monsterY + Math.sign(dy)]);
++    options.push([monsterX + Math.sign(dx), monsterY]);
++  }
++
++  options.push([monsterX+1,monsterY],[monsterX-1,monsterY],
++               [monsterX,monsterY+1],[monsterX,monsterY-1]);
++
++  for (let [ox, oy] of options) {
++    if (ox>=0&&oy>=0&&ox<cols&&oy<rows && maze[oy][ox] === 1) {
++      monsterX = ox;
++      monsterY = oy;
++      break;
++    }
++  }
++}
++
++function endGame(win) {
++  gameOver = true;
++  messageEl.textContent = win ? "🏆 You escaped!" : "💀 The monster caught you!";
++  render();
++}
++
++// render grid
++function render() {
++  let lines = "";
++  for (let y = 0; y < rows; y++) {
++    for (let x = 0; x < cols; x++) {
++      if (x === playerX && y === playerY) lines += "🧍";
++      else if (x === monsterX && y === monsterY) lines += "👹";
++      else if (x === exitX && y === exitY) lines += "🟧";
++      else if (maze[y][x] === 0) lines += "🟥";
++      else lines += "🟦";
++    }
++    lines += "\n";
++  }
++  gridEl.textContent = lines;
++}
++
++initGame();
++</script>
++</body>
++</html>
++
