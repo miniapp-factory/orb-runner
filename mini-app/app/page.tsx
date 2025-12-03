@@ -24,39 +24,60 @@ export default function Home() {
     const rows = 10;
     const cols = 10;
     const newMaze: number[][] = Array.from({ length: rows }, () =>
-      Array.from({ length: cols }, () => 1)
+      Array.from({ length: cols }, () => 0)
     );
-    let px = 0;
-    let py = 0;
-    newMaze[py][px] = 0;
-    while (px !== cols - 1 || py !== rows - 1) {
-      if (Math.random() < 0.5 && px < cols - 1) {
-        px += 1;
-      } else if (py < rows - 1) {
-        py += 1;
+    let x = 0;
+    let y = 0;
+    newMaze[y][x] = 1;
+    while (x !== cols - 1 || y !== rows - 1) {
+      if (Math.random() < 0.5 && x < cols - 1) {
+        x += 1;
+      } else if (y < rows - 1) {
+        y += 1;
       }
-      newMaze[py][px] = 1;
+      newMaze[y][x] = 1;
     }
     for (let i = 0; i < 40; i++) {
       const rx = Math.floor(Math.random() * cols);
       const ry = Math.floor(Math.random() * rows);
-      newMaze[ry][rx] = 0;
+      newMaze[ry][rx] = 1;
     }
     setPlayerX(0);
     setPlayerY(0);
-    setExitX(cols - 1);
-    setExitY(rows - 1);
-    setMonsterX(cols - 1);
-    setMonsterY(rows - 2);
-    newMaze[rows-1][cols-1] = 0;
-    newMaze[rows-2][cols-1] = 0;
+    let monsterX = cols - 1;
+    let monsterY = rows - 1;
+    if (newMaze[monsterY][monsterX] === 0) {
+      outer: for (let yy = rows - 1; yy >= 0; yy--) {
+        for (let xx = cols - 1; xx >= 0; xx--) {
+          if (newMaze[yy][xx] === 1) {
+            monsterX = xx;
+            monsterY = yy;
+            break outer;
+          }
+        }
+      }
+    }
+    setMonsterX(monsterX);
+    setMonsterY(monsterY);
+    let exitX = Math.floor(Math.random() * cols);
+    let exitY = Math.floor(Math.random() * rows);
+    while (
+      newMaze[exitY][exitX] !== 1 ||
+      (exitX === 0 && exitY === 0) ||
+      (exitX === monsterX && exitY === monsterY)
+    ) {
+      exitX = Math.floor(Math.random() * cols);
+      exitY = Math.floor(Math.random() * rows);
+    }
+    setExitX(exitX);
+    setExitY(exitY);
     setMaze(newMaze);
     setMoves(0);
     setTimeLeft(30);
     setGameOver(false);
     setAnimStep(0);
     setAnimMax(2);
-    setMessage("Escape the maze!");
+    setMessage("Escape the maze! Use buttons. Restart always available.");
   };
 
   const move = (dir: string) => {
@@ -72,7 +93,7 @@ export default function Home() {
       setMessage("Boundary!");
       return;
     }
-    if (maze[newY][newX] === 1) {
+    if (maze[newY][newX] === 0) {
       setMessage("You hit a wall!");
       return;
     }
@@ -90,10 +111,14 @@ export default function Home() {
       return;
     }
 
-    monsterMove();
+    const [newMonsterX, newMonsterY] = monsterMove();
 
-    if (timeLeft - 1 <= 0) {
-      setMessage("⏳ Time is up!");
+    if (newMonsterX === newX && newMonsterY === newY) {
+      endGame(false);
+      return;
+    }
+
+    if (newTimeLeft <= 0) {
       endGame(false);
       return;
     }
@@ -108,11 +133,12 @@ export default function Home() {
     }
   };
 
-  const monsterMove = () => {
+  const monsterMove = (): [number, number] => {
+    if (gameOver) return [monsterX, monsterY];
     const dx = playerX - monsterX;
     const dy = playerY - monsterY;
     const options: [number, number][] = [];
-    if (Math.abs(dx) > Math.abs(dy)) {
+    if (Math.abs(dx) >= Math.abs(dy)) {
       options.push([monsterX + Math.sign(dx), monsterY]);
       options.push([monsterX, monsterY + Math.sign(dy)]);
     } else {
@@ -124,19 +150,24 @@ export default function Home() {
     options.push([monsterX, monsterY + 1]);
     options.push([monsterX, monsterY - 1]);
 
+    let newX = monsterX;
+    let newY = monsterY;
     for (const [ox, oy] of options) {
       if (ox >= 0 && oy >= 0 && ox < 10 && oy < 10) {
-        if (maze[oy][ox] === 0) {
-          setMonsterX(ox);
-          setMonsterY(oy);
+        if (maze[oy][ox] === 1) {
+          newX = ox;
+          newY = oy;
           break;
         }
       }
     }
+    setMonsterX(newX);
+    setMonsterY(newY);
 
-    if (monsterX === playerX && monsterY === playerY) {
+    if (newX === playerX && newY === playerY) {
       endGame(false);
     }
+    return [newX, newY];
   };
 
   const buildGrid = () => {
@@ -150,7 +181,7 @@ export default function Home() {
           out += "👹";
         } else if (x === exitX && y === exitY) {
           out += "🟧";
-        } else if (maze[y][x] === 1) {
+        } else if (maze[y][x] === 0) {
           out += "🟥";
         } else {
           out += "🟦";
@@ -169,7 +200,7 @@ export default function Home() {
     <main className="flex flex-col gap-3 place-items-center place-content-center px-4 grow">
       <h1 className="text-2xl font-bold">{title}</h1>
       <p className="text-sm">{message}</p>
-      <pre className="text-2xl font-mono whitespace-pre-wrap">{buildGrid()}</pre>
+      <pre className="text-4xl font-mono whitespace-pre">{buildGrid()}</pre>
       <div className="flex gap-2">
         {!gameOver && (
           <>
