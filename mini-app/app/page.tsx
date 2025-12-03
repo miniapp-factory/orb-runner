@@ -147,7 +147,7 @@ export default function Home() {
     let newX = monsterX;
     let newY = monsterY;
     for (const [ox, oy] of options) {
-      if (ox >= 0 && oy >= 0 && ox < 10 && oy < 10) {
+      if (ox >= 0 && oy >= 0 && ox < maze[0].length && oy < maze.length) {
         if (maze[oy][ox] === 1) {
           newX = ox;
           newY = oy;
