@@ -1,6 +1,7 @@
 "use client";
 
-import { description, title } from "@/lib/metadata";
+import { description, title, url } from "@/lib/metadata";
+import { Share } from "@/components/share";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -200,6 +201,7 @@ export default function Home() {
     <main className="flex flex-col gap-3 place-items-center place-content-center px-4 grow">
       <h1 className="text-2xl font-bold">{title}</h1>
       <p className="text-sm">{message}</p>
+      <Share text={`${description} ${url}`} />
       <pre className="text-4xl font-mono whitespace-pre">{buildGrid()}</pre>
       <div className="flex gap-2">
         <Button onClick={() => move("Up")}>Up</Button>
