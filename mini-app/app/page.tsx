@@ -158,9 +158,6 @@ export default function Home() {
     setMonsterX(newX);
     setMonsterY(newY);
 
-    if (newX === playerX && newY === playerY) {
-      endGame(false);
-    }
     return [newX, newY];
   };
 
