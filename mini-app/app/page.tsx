@@ -164,8 +164,10 @@ export default function Home() {
   const buildGrid = () => {
     if (!maze || maze.length === 0) return "";
     let out = "";
-    for (let y = 0; y < 10; y++) {
-      for (let x = 0; x < 10; x++) {
+    const rows = maze.length;
+    const cols = maze[0]?.length ?? 0;
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
         if (x === playerX && y === playerY) {
           out += "🧍";
         } else if (x === monsterX && y === monsterY) {
